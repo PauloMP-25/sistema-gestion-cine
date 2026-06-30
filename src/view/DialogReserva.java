@@ -1,0 +1,123 @@
+package view;
+
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.FlowLayout;
+import java.awt.Frame;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.geom.RoundRectangle2D;
+
+/**
+ * Ventana modal de confirmación que se muestra al confirmar una reserva.
+ * Informa al usuario la fila y columna seleccionadas y solicita confirmación
+ * antes de ejecutar la operación contra el backend.
+ */
+public class DialogReserva extends JDialog {
+
+    private boolean confirmado;
+
+    /**
+     * Crea el diálogo modal de confirmación de reserva.
+     * @param padre   Ventana padre sobre la cual se centra el diálogo.
+     * @param fila    Fila de la butaca (base 0, se muestra en base 1).
+     * @param columna Columna de la butaca (base 0, se muestra en base 1).
+     */
+    public DialogReserva(Frame padre, int fila, int columna) {
+        super(padre, "Confirmar Reserva", true);
+        this.confirmado = false;
+        inicializarComponentes(fila, columna);
+        configurarEventos();
+        setSize(360, 200);
+        setLocationRelativeTo(padre);
+        setResizable(false);
+    }
+
+    // Solo crea y posiciona componentes; sin listeners aquí.
+    private void inicializarComponentes(int fila, int columna) {
+        getContentPane().setBackground(UIConstants.BG_PANEL);
+        setLayout(new BorderLayout(0, 0));
+
+        JPanel cuerpo = new JPanel(new BorderLayout(0, 14));
+        cuerpo.setOpaque(false);
+        cuerpo.setBorder(new EmptyBorder(20, 24, 10, 24));
+
+        JLabel icono = new JLabel("🎟", javax.swing.SwingConstants.CENTER);
+        icono.setFont(new java.awt.Font("Segoe UI Emoji", java.awt.Font.PLAIN, 32));
+
+        JLabel mensaje = new JLabel(
+            "<html><center>¿Confirma la reserva de la butaca?<br>"
+            + "<b style='color:#fbbf24'>Fila " + (fila + 1) + " - Columna " + (columna + 1) + "</b></center></html>",
+            javax.swing.SwingConstants.CENTER);
+        mensaje.setFont(UIConstants.FUENTE_CUERPO);
+        mensaje.setForeground(UIConstants.TEXTO_PRIMARIO);
+
+        cuerpo.add(icono, BorderLayout.NORTH);
+        cuerpo.add(mensaje, BorderLayout.CENTER);
+
+        add(cuerpo, BorderLayout.CENTER);
+        add(crearPanelBotones(), BorderLayout.SOUTH);
+    }
+
+    private JPanel crearPanelBotones() {
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 14));
+        panel.setOpaque(false);
+
+        JButton btnConfirmar = new JButton("Confirmar");
+        estilizarBoton(btnConfirmar, UIConstants.BTN_EXITO);
+        btnConfirmar.addActionListener(e -> onConfirmarClick());
+
+        JButton btnCancelar = new JButton("Cancelar");
+        estilizarBoton(btnCancelar, UIConstants.BTN_PELIGRO);
+        btnCancelar.addActionListener(e -> onCancelarClick());
+
+        panel.add(btnConfirmar);
+        panel.add(btnCancelar);
+        return panel;
+    }
+
+    // Separar configuración de eventos del resto (cierre con la X)
+    private void configurarEventos() {
+        setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+    }
+
+    // PARADIGMA: Orientado a Eventos — handler con prefijo "on"
+    private void onConfirmarClick() {
+        confirmado = true;
+        dispose();
+    }
+
+    private void onCancelarClick() {
+        confirmado = false;
+        dispose();
+    }
+
+    private void estilizarBoton(JButton btn, Color color) {
+        btn.setFont(UIConstants.FUENTE_BOTON);
+        btn.setBackground(color);
+        btn.setForeground(Color.WHITE);
+        btn.setFocusPainted(false);
+        btn.setBorderPainted(false);
+        btn.setPreferredSize(new java.awt.Dimension(120, 36));
+        btn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+    }
+
+    /**
+     * Indica si el usuario confirmó la reserva.
+     * @return true si presionó "Confirmar", false en caso contrario.
+     */
+    public boolean isConfirmado() {
+        return confirmado;
+    }
+
+    @Override
+    public void paint(Graphics g) {
+        super.paint(g);
+    }
+}

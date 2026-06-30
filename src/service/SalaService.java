@@ -65,6 +65,13 @@ public class SalaService implements ISalaService {
     }
     // fin rutina: Cancelación de reserva
 
+    @Override
+    public void ocupar(int fila, int columna) throws PosicionInvalidaException {
+        validarPosicion(fila, columna);
+        Butaca butaca = manager.getButaca(fila, columna);
+        cambiarEstado(butaca, EstadoButaca.OCUPADO);
+    }
+
     // paradigma: Imperativo — Validación secuencial de rangos con condicionales
     // inicio rutina: Validación de posición
     private void validarPosicion(int fila, int columna) throws PosicionInvalidaException {

@@ -32,4 +32,6 @@ public interface ISalaService {
      */
     void cancelar(int fila, int columna)
             throws PosicionInvalidaException, AsientoNoReservadoException;
+
+    void ocupar(int fila, int columna) throws PosicionInvalidaException;
 }

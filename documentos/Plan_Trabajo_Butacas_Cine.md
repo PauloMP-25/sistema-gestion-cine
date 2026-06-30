@@ -36,7 +36,7 @@ sistema-gestion-cine/
 │   ├── exception/                  ← Excepciones personalizadas
 │   │   ├── AsientoOcupadoException.java
 │   │   ├── AsientoYaReservadoException.java
-│   │   ├── AsientoNoReservadoException.java
+│   │   ├── AsientoNoReservadoException.javacle
 │   │   └── PosicionInvalidaException.java
 │   │
 │   └── view/                       ← Capa Visual (SOLO del equipo Frontend)
@@ -57,7 +57,7 @@ sistema-gestion-cine/
 |---|---|---|---|
 | `EstadoButaca.java` | model | Dev 1 | Enum con los 3 estados posibles. |
 | `Butaca.java` | model | Dev 1 | Entidad que representa un asiento. |
-| `ISalaService.java` | service/interfaces | Dev 2 | Contrato de operaciones (reservar, cancelar, etc). |
+| `ISalaService.java` | service/interfaces | Dev 2 | Contrato de operaciones (reservar, cancelar, etc). |dime 
 | `ISalaQuery.java` | service/interfaces | Dev 3 | Contrato de consultas (contar libres, listar, etc). |
 | `SalaManager.java` | service | Dev 2 | Singleton. Inicializa y posee la matriz `Butaca[][]`. |
 | `SalaService.java` | service | Dev 2 | Implementa `ISalaService`. Reglas de reserva/cancelación. |
