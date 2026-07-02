@@ -162,7 +162,7 @@ public class BotonButaca extends JButton {
         switch (estado) {
             case RESERVADO: return "R";
             case OCUPADO:   return "O";
-            default:        return "AL";
+            default:        return "L";
         }
     }
 }
