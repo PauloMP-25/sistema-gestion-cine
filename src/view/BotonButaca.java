@@ -132,10 +132,10 @@ public class BotonButaca extends JButton {
         g2.setStroke(new BasicStroke(1f));
         g2.draw(new RoundRectangle2D.Float(3, 8, w - 7, h - 12, 10, 10));
 
-        // Etiqueta fila-columna
-        g2.setFont(new Font("Segoe UI", Font.BOLD, 9));
+        // Etiqueta de estado
+        g2.setFont(new Font("Segoe UI", Font.BOLD, 10));
         g2.setColor(new Color(255, 255, 255, 210));
-        String etiqueta = (fila + 1) + "-" + (columna + 1);
+        String etiqueta = etiquetaEstado();
         FontMetrics fm = g2.getFontMetrics();
         g2.drawString(etiqueta, (w - fm.stringWidth(etiqueta)) / 2, h / 2 + 6);
 
@@ -155,6 +155,14 @@ public class BotonButaca extends JButton {
             case RESERVADO: return UIConstants.COLOR_RESERVADO_HOVER;
             case OCUPADO:   return UIConstants.COLOR_OCUPADO_HOVER;
             default:        return UIConstants.COLOR_LIBRE_HOVER;
+        }
+    }
+
+    private String etiquetaEstado() {
+        switch (estado) {
+            case RESERVADO: return "R";
+            case OCUPADO:   return "O";
+            default:        return "AL";
         }
     }
 }

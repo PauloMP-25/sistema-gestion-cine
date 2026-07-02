@@ -6,11 +6,8 @@ package model;
  */
 public class SalaCine {
     
-    /** Cantidad máxima de filas en la sala. */
-    public static final int MAX_FILAS = 5;
-    
-    /** Cantidad máxima de columnas en la sala. */
-    public static final int MAX_COLS = 6;
+    public static int MAX_FILAS = 5;
+    public static int MAX_COLS = 6;
 
     private static SalaCine instancia;
     private final Butaca[][] butacas;
@@ -19,6 +16,17 @@ public class SalaCine {
     private SalaCine() {
         butacas = new Butaca[MAX_FILAS][MAX_COLS];
         inicializarSala();
+    }
+
+    /**
+     * Debe llamarse antes de getInstance() para configurar el tamaño de la sala.
+     */
+    public static synchronized void inicializar(int filas, int cols) {
+        if (instancia != null) {
+            throw new IllegalStateException("La sala ya fue inicializada.");
+        }
+        MAX_FILAS = filas;
+        MAX_COLS = cols;
     }
 
     /**
