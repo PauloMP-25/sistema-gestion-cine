@@ -2,13 +2,14 @@ package service;
 
 import model.Butaca;
 import model.EstadoButaca;
+import model.SalaCine;
 import service.interfaces.ISalaQuery;
 import java.util.Arrays;
 
 public class SalaQuery implements ISalaQuery {
-    private final SalaManager manager;
+    private final SalaCine manager;
 
-    public SalaQuery(SalaManager manager) {
+    public SalaQuery(SalaCine manager) {
         this.manager = manager;
     }
 
@@ -38,7 +39,7 @@ public class SalaQuery implements ISalaQuery {
 
     @Override
     public int totalButacas() {
-        return SalaManager.MAX_FILAS * SalaManager.MAX_COLS;
+        return SalaCine.MAX_FILAS * SalaCine.MAX_COLS;
     }
 
     @Override

@@ -1,13 +1,10 @@
-package service;
-
-import model.Butaca;
-import model.EstadoButaca;
+package model;
 
 /**
  * Singleton encargado de administrar la estructura principal de la sala.
  * Inicializa y posee la matriz de butacas.
  */
-public class SalaManager {
+public class SalaCine {
     
     /** Cantidad máxima de filas en la sala. */
     public static final int MAX_FILAS = 5;
@@ -15,11 +12,11 @@ public class SalaManager {
     /** Cantidad máxima de columnas en la sala. */
     public static final int MAX_COLS = 6;
 
-    private static SalaManager instancia;
+    private static SalaCine instancia;
     private final Butaca[][] butacas;
 
     // PARADIGMA: Imperativo — Inicialización y recorrido de la matriz de butacas
-    private SalaManager() {
+    private SalaCine() {
         butacas = new Butaca[MAX_FILAS][MAX_COLS];
         inicializarSala();
     }
@@ -28,9 +25,9 @@ public class SalaManager {
      * Obtiene la instancia única de SalaManager (patrón Singleton).
      * @return La instancia única de SalaManager.
      */
-    public static synchronized SalaManager getInstance() {
+    public static synchronized SalaCine getInstance() {
         if (instancia == null) {
-            instancia = new SalaManager();
+            instancia = new SalaCine();
         }
         return instancia;
     }

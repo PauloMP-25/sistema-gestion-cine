@@ -4,7 +4,6 @@ package exception;
  * Excepción lanzada cuando se intenta reservar una butaca
  * que ya se encuentra en estado OCUPADO.
  */
-// PARADIGMA: Orientado a Objetos — Herencia de RuntimeException
 public class AsientoOcupadoException extends RuntimeException {
 
     /**

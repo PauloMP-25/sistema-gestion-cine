@@ -10,9 +10,6 @@ import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-import java.awt.geom.RoundRectangle2D;
 
 /**
  * Ventana modal de confirmación que se muestra al confirmar una reserva.
@@ -48,9 +45,6 @@ public class DialogReserva extends JDialog {
         cuerpo.setOpaque(false);
         cuerpo.setBorder(new EmptyBorder(20, 24, 10, 24));
 
-        JLabel icono = new JLabel("🎟", javax.swing.SwingConstants.CENTER);
-        icono.setFont(new java.awt.Font("Segoe UI Emoji", java.awt.Font.PLAIN, 32));
-
         JLabel mensaje = new JLabel(
             "<html><center>¿Confirma la reserva de la butaca?<br>"
             + "<b style='color:#fbbf24'>Fila " + (fila + 1) + " - Columna " + (columna + 1) + "</b></center></html>",
@@ -58,7 +52,6 @@ public class DialogReserva extends JDialog {
         mensaje.setFont(UIConstants.FUENTE_CUERPO);
         mensaje.setForeground(UIConstants.TEXTO_PRIMARIO);
 
-        cuerpo.add(icono, BorderLayout.NORTH);
         cuerpo.add(mensaje, BorderLayout.CENTER);
 
         add(cuerpo, BorderLayout.CENTER);

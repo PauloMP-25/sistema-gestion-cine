@@ -30,6 +30,9 @@ public class Butaca {
         this.estado = estado;
     }
 
+    /*
+    METODOS GETTERS Y SETTERS
+    */
     public int getFila() {
         return fila;
     }

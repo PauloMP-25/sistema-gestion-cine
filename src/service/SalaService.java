@@ -6,6 +6,7 @@ import exception.AsientoYaReservadoException;
 import exception.PosicionInvalidaException;
 import model.Butaca;
 import model.EstadoButaca;
+import model.SalaCine;
 import service.interfaces.ISalaService;
 
 /**
@@ -16,13 +17,13 @@ import service.interfaces.ISalaService;
 // PARADIGMA: Orientado a Objetos — Implementación de interfaz, encapsulamiento y composición
 public class SalaService implements ISalaService {
 
-    private final SalaManager manager;
+    private final SalaCine manager;
 
     /**
      * Crea una instancia de SalaService usando el gestor de sala dado.
      * @param manager El SalaManager que contiene la matriz de butacas.
      */
-    public SalaService(SalaManager manager) {
+    public SalaService(SalaCine manager) {
         this.manager = manager;
     }
 
@@ -75,8 +76,8 @@ public class SalaService implements ISalaService {
     // paradigma: Imperativo — Validación secuencial de rangos con condicionales
     // inicio rutina: Validación de posición
     private void validarPosicion(int fila, int columna) throws PosicionInvalidaException {
-        if (fila < 0 || fila >= SalaManager.MAX_FILAS
-                || columna < 0 || columna >= SalaManager.MAX_COLS) {
+        if (fila < 0 || fila >= SalaCine.MAX_FILAS
+                || columna < 0 || columna >= SalaCine.MAX_COLS) {
             throw new PosicionInvalidaException(fila, columna);
         }
     }

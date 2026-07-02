@@ -1,7 +1,8 @@
 package app;
 
 import javax.swing.SwingUtilities;
-import service.SalaManager;
+
+import model.SalaCine;
 import service.SalaService;
 import service.SalaQuery;
 import service.interfaces.ISalaService;
@@ -10,13 +11,12 @@ import view.MainFrame;
 
 /**
  * Punto de entrada principal del sistema de gestión de butacas de cine.
- * Responsabilidad del equipo QA para integración de capas.
  */
 public class App {
     // INICIO RUTINA: Punto de entrada del sistema
     public static void main(String[] args) {
         // Única instanciación concreta del sistema
-        SalaManager manager = SalaManager.getInstance();
+        SalaCine manager = SalaCine.getInstance();
         ISalaService servicio = new SalaService(manager);
         ISalaQuery consulta = new SalaQuery(manager);
 

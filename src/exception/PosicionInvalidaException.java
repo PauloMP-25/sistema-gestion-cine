@@ -4,7 +4,6 @@ package exception;
  * Excepción lanzada cuando se intenta acceder a una posición
  * de fila o columna que está fuera del rango válido de la sala.
  */
-// PARADIGMA: Orientado a Objetos — Herencia de RuntimeException
 public class PosicionInvalidaException extends RuntimeException {
 
     /**
