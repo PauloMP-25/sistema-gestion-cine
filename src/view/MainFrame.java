@@ -32,6 +32,7 @@ public class MainFrame extends JFrame {
 
     private CardLayout cardLayout;
     private JPanel     panelContenido;
+    private JPanel     panelBarraEstado;
     private JLabel     lblBreadcrumb;   // indicador de ubicación en el header
     private JLabel     lblBarraEstado;
 
@@ -234,15 +235,15 @@ public class MainFrame extends JFrame {
     // =========================================================================
 
     private JPanel crearBarraEstado() {
-        JPanel barra = new JPanel(new FlowLayout(FlowLayout.LEFT, 16, 4));
-        barra.setBackground(UIConstants.BG_HEADER);
-        barra.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, UIConstants.BORDE));
-        barra.setPreferredSize(new Dimension(0, 28));
+        panelBarraEstado = new JPanel(new FlowLayout(FlowLayout.LEFT, 16, 4));
+        panelBarraEstado.setBackground(UIConstants.BG_HEADER);
+        panelBarraEstado.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, UIConstants.BORDE));
+        panelBarraEstado.setPreferredSize(new Dimension(0, 36));
         lblBarraEstado = new JLabel("🎬  Bienvenido al sistema de gestión de butacas");
         lblBarraEstado.setFont(UIConstants.FUENTE_PEQUENA);
         lblBarraEstado.setForeground(UIConstants.TEXTO_TENUE);
-        barra.add(lblBarraEstado);
-        return barra;
+        panelBarraEstado.add(lblBarraEstado);
+        return panelBarraEstado;
     }
 
     private void actualizarBarraEstado(String texto) {
@@ -263,7 +264,13 @@ public class MainFrame extends JFrame {
         cardLayout.show(panelContenido, CARD_LOBBY);
         lblBreadcrumb.setText("Inicio  /  Mis Salas");
         setBtnVolverVisible(false);
+        
+        panelBarraEstado.removeAll();
+        panelBarraEstado.add(lblBarraEstado);
         actualizarBarraEstado("🎬  Selecciona o crea una sala para comenzar");
+        panelBarraEstado.revalidate();
+        panelBarraEstado.repaint();
+        
         setTitle("🎬 Sistema de Gestión de Butacas de Cine");
     }
 
@@ -293,7 +300,7 @@ public class MainFrame extends JFrame {
         scrollSala.getViewport().setOpaque(false);
         scrollSala.setBorder(BorderFactory.createEmptyBorder());
         izquierda.add(scrollSala, BorderLayout.CENTER);
-        izquierda.add(new PanelLeyenda(), BorderLayout.SOUTH);
+        // La leyenda ya no se muestra debajo de los asientos
 
         // Panel de control lateral
         panelControlActual = new PanelControl(salaService, salaQuery, rol);
@@ -361,9 +368,10 @@ public class MainFrame extends JFrame {
     }
 
     private void actualizarBarraEstadoSala(ISalaQuery q) {
-        actualizarBarraEstado(String.format(
-            "🟢 Libres: %d   🟡 Reservadas: %d   🔴 Ocupadas: %d   · Total: %d",
-            q.contarLibres(), q.contarReservadas(), q.contarOcupadas(), q.totalButacas()));
+        panelBarraEstado.removeAll();
+        panelBarraEstado.add(new PanelLeyenda());
+        panelBarraEstado.revalidate();
+        panelBarraEstado.repaint();
     }
 
     private void setBtnVolverVisible(boolean visible) {
