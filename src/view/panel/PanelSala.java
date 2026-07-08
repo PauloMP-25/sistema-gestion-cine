@@ -169,7 +169,7 @@ public class PanelSala extends JPanel {
                     salaService.reservar(fila, columna);
                     sincronizarBoton(fila, columna);
                     notificarCambio();
-                    JOptionPane.showMessageDialog(padre, "Se ha reservado el asiento número " + seatNum + ".", "Información", JOptionPane.INFORMATION_MESSAGE);
+                    DialogMensaje.mostrar(padre, DialogMensaje.Tipo.EXITO, "Se ha reservado el asiento número " + seatNum + ".");
                 }
                 break;
             case RESERVADO:
@@ -205,7 +205,7 @@ public class PanelSala extends JPanel {
                     salaService.ocupar(fila, columna);
                     sincronizarBoton(fila, columna);
                     notificarCambio();
-                    JOptionPane.showMessageDialog(padre, "Se ha ocupado el asiento número " + seatNum + ".", "Información", JOptionPane.INFORMATION_MESSAGE);
+                    DialogMensaje.mostrar(padre, DialogMensaje.Tipo.EXITO, "Se ha ocupado el asiento número " + seatNum + ".");
                 }
             }
         } else if (opcion == DialogOpcionesButaca.Opcion.CANCELAR) {
@@ -213,7 +213,7 @@ public class PanelSala extends JPanel {
             sincronizarBoton(fila, columna);
             notificarCambio();
             int seatNum = (fila * columnas) + columna + 1;
-            JOptionPane.showMessageDialog(padre, "Se ha cancelado la reserva del asiento número " + seatNum + ".", "Información", JOptionPane.INFORMATION_MESSAGE);
+            DialogMensaje.mostrar(padre, DialogMensaje.Tipo.EXITO, "Se ha cancelado la reserva del asiento número " + seatNum + ".");
         }
     }
 
@@ -254,6 +254,6 @@ public class PanelSala extends JPanel {
 
     private void mostrarError(String mensaje) {
         java.awt.Frame padre = (java.awt.Frame) javax.swing.SwingUtilities.getWindowAncestor(this);
-        JOptionPane.showMessageDialog(padre, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
+        DialogMensaje.mostrar(padre, DialogMensaje.Tipo.ERROR, mensaje);
     }
 }

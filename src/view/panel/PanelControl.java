@@ -298,7 +298,7 @@ public class PanelControl extends JPanel {
         try {
             salaService.reservar(fila, col);
             notificarCambio();
-            JOptionPane.showMessageDialog(ventanaPadre(), "Se ha reservado el asiento número " + num + ".", "Información", JOptionPane.INFORMATION_MESSAGE);
+            DialogMensaje.mostrar(ventanaPadre(), DialogMensaje.Tipo.EXITO, "Se ha reservado el asiento número " + num + ".");
         } catch (PosicionInvalidaException ex)     { mostrarError("Posición inválida."); }
           catch (AsientoOcupadoException ex)       { mostrarError("Este asiento está ocupado."); }
           catch (AsientoYaReservadoException ex)   { mostrarError("Este asiento ya fue reservado."); }
@@ -310,7 +310,7 @@ public class PanelControl extends JPanel {
         try {
             salaService.cancelar(fila, col);
             notificarCambio();
-            JOptionPane.showMessageDialog(ventanaPadre(), "Se ha cancelado la reserva del asiento número " + num + ".", "Información", JOptionPane.INFORMATION_MESSAGE);
+            DialogMensaje.mostrar(ventanaPadre(), DialogMensaje.Tipo.EXITO, "Se ha cancelado la reserva del asiento número " + num + ".");
         } catch (PosicionInvalidaException ex)  { mostrarError("Posición inválida."); }
           catch (AsientoNoReservadoException ex) { mostrarError("El asiento no está reservado."); }
     }
@@ -338,7 +338,7 @@ public class PanelControl extends JPanel {
             try {
                 salaService.ocupar(fila, col);
                 notificarCambio();
-                JOptionPane.showMessageDialog(ventanaPadre(), "Se ha ocupado el asiento número " + num + ".", "Información", JOptionPane.INFORMATION_MESSAGE);
+                DialogMensaje.mostrar(ventanaPadre(), DialogMensaje.Tipo.EXITO, "Se ha ocupado el asiento número " + num + ".");
             } catch (PosicionInvalidaException ex) { 
                 mostrarError("Posición inválida."); 
             }
@@ -385,10 +385,10 @@ public class PanelControl extends JPanel {
     }
 
     private void mostrarError(String m) {
-        JOptionPane.showMessageDialog(ventanaPadre(), m, "Error", JOptionPane.ERROR_MESSAGE);
+        DialogMensaje.mostrar(ventanaPadre(), DialogMensaje.Tipo.ERROR, m);
     }
     private void mostrarInfo(String m) {
-        JOptionPane.showMessageDialog(ventanaPadre(), m, "Información", JOptionPane.INFORMATION_MESSAGE);
+        DialogMensaje.mostrar(ventanaPadre(), DialogMensaje.Tipo.INFO, m);
     }
     private Frame ventanaPadre() {
         return (Frame) SwingUtilities.getWindowAncestor(this);
