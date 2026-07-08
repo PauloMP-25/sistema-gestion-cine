@@ -25,6 +25,7 @@ public class MainFrame extends JFrame {
     // Claves del CardLayout
     private static final String CARD_LOBBY = "LOBBY";
     private static final String CARD_SALA  = "SALA";
+    private static final String CARD_CREAR_SALA = "CREAR_SALA";
 
     private final GestorSalas gestorSalas;
     private final Rol rol;
@@ -38,6 +39,7 @@ public class MainFrame extends JFrame {
 
     // Paneles (se crean una vez y se reutilizan)
     private PanelLobby  panelLobby;
+    private PanelCrearSala panelCrearSala;
     private JPanel      panelSalaWrapper;   // envuelve PanelSala + PanelControl
     private PanelSala   panelSalaActual;
     private PanelControl panelControlActual;
@@ -94,7 +96,12 @@ public class MainFrame extends JFrame {
         if (gestorSalas != null) {
             panelLobby = new PanelLobby(gestorSalas, rol);
             panelLobby.setAlAbrirSala(this::mostrarSala);
+            panelLobby.setAlCrearSala(this::mostrarCrearSala);
             panelContenido.add(panelLobby, CARD_LOBBY);
+
+            panelCrearSala = new PanelCrearSala(gestorSalas);
+            panelCrearSala.setAlTerminar(this::mostrarLobby);
+            panelContenido.add(panelCrearSala, CARD_CREAR_SALA);
         }
 
         // Wrapper de sala (se rellena en mostrarSala)
@@ -272,6 +279,20 @@ public class MainFrame extends JFrame {
         panelBarraEstado.repaint();
         
         setTitle("🎬 Sistema de Gestión de Butacas de Cine");
+    }
+
+    /**
+     * Muestra el panel de creación de sala (RF3 con vista previa).
+     */
+    public void mostrarCrearSala() {
+        if (panelCrearSala != null) {
+            panelCrearSala.limpiarCampos();
+        }
+        cardLayout.show(panelContenido, CARD_CREAR_SALA);
+        lblBreadcrumb.setText("Inicio  /  Nueva Sala");
+        setBtnVolverVisible(true);
+        actualizarBarraEstado("🎭  Configura la nueva sala en el formulario");
+        setTitle("🎬 Nueva Sala — Distribución Dinámica");
     }
 
     /**

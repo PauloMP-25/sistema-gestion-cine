@@ -30,6 +30,7 @@ public class PanelLobby extends JPanel {
     private final GestorSalas gestorSalas;
     private final Rol rol;
     private AbrirSalaCallback alAbrirSala;
+    private Runnable alCrearSala;
 
     private PanelDashboard panelDashboard;
     private JPanel panelListaSalas;
@@ -54,6 +55,10 @@ public class PanelLobby extends JPanel {
 
     public void setAlAbrirSala(AbrirSalaCallback cb) {
         this.alAbrirSala = cb;
+    }
+
+    public void setAlCrearSala(Runnable cb) {
+        this.alCrearSala = cb;
     }
 
     private void inicializarComponentes() {
@@ -260,19 +265,9 @@ public class PanelLobby extends JPanel {
     // =========================================================================
 
     private void onNuevaSala() {
-        Frame padre = (Frame) SwingUtilities.getWindowAncestor(this);
-        DialogCrearSala dialogo = new DialogCrearSala(padre);
-        dialogo.setVisible(true);
-        if (!dialogo.isConfirmado()) return;
-
-        SalaCine nuevaSala = SalaFactory.crearSala(
-                dialogo.getNombreSala(),
-                dialogo.getTotalAsientos(),
-                dialogo.getFilas(),
-                dialogo.getColumnas()
-        );
-        gestorSalas.agregarSala(nuevaSala);
-        refrescar();
+        if (alCrearSala != null) {
+            alCrearSala.run();
+        }
     }
 
     private void onAbrirSala(SalaCine sala) {
