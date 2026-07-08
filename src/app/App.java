@@ -8,8 +8,8 @@ import service.SalaQuery;
 import service.SalaService;
 import service.interfaces.ISalaQuery;
 import service.interfaces.ISalaService;
-import view.DialogGestionSalas;
-import view.DialogSeleccionarSala;
+import service.interfaces.ISalaQuery;
+import service.interfaces.ISalaService;
 import view.LoginFrame;
 import view.MainFrame;
 
@@ -56,52 +56,20 @@ public class App {
 
         Rol rol = "admin".equals(login.getUsuarioActual()) ? Rol.ADMIN : Rol.CAJERO;
 
-        SalaCine sala;
-        if (rol == Rol.ADMIN) sala = flujoAdmin(gestorSalas);
-        else                  sala = flujoCajero(gestorSalas);
-        if (sala == null) System.exit(0);
-
-        abrirMainFrame(gestorSalas, rol, sala);
+        abrirMainFrame(gestorSalas, rol);
     }
 
-    private static void abrirMainFrame(GestorSalas gestorSalas, Rol rol, SalaCine sala) {
-        ISalaService servicio = new SalaService(sala);
-        ISalaQuery   consulta = new SalaQuery(sala);
-        MainFrame ventana = new MainFrame(servicio, consulta, rol, sala.getNombre(), gestorSalas);
+    private static void abrirMainFrame(GestorSalas gestorSalas, Rol rol) {
+        MainFrame ventana = new MainFrame(gestorSalas, rol);
 
         ventana.addWindowListener(new WindowAdapter() {
             @Override public void windowClosed(WindowEvent e) {
                 if (ventana.isLogout()) {
                     SwingUtilities.invokeLater(() -> iniciarSistema(gestorSalas));
-                } else if (ventana.isCambioSala() && ventana.getNuevaSala() != null) {
-                    SwingUtilities.invokeLater(() ->
-                        abrirMainFrame(gestorSalas, rol, ventana.getNuevaSala()));
                 }
             }
         });
 
         ventana.setVisible(true);
-    }
-
-    // Admin: gestiona salas (crear, renombrar, eliminar) y elige una para entrar
-    private static SalaCine flujoAdmin(GestorSalas gestorSalas) {
-        DialogGestionSalas dialogo = new DialogGestionSalas(gestorSalas);
-        dialogo.setVisible(true);
-        if (!dialogo.isConfirmado()) return null;
-        return dialogo.getSalaSeleccionada();
-    }
-
-    // Cajero: elige una de las salas existentes
-    private static SalaCine flujoCajero(GestorSalas gestorSalas) {
-        if (gestorSalas.listarSalas().isEmpty()) {
-            JOptionPane.showMessageDialog(null,
-                    "No hay salas disponibles.\nContacte al administrador.",
-                    "Sin salas", JOptionPane.WARNING_MESSAGE);
-            return null;
-        }
-        DialogSeleccionarSala dialogo = new DialogSeleccionarSala(gestorSalas);
-        dialogo.setVisible(true);
-        if (!dialogo.isConfirmado()) return null;
-        return dialogo.getSalaSeleccionada();
     }
 }
