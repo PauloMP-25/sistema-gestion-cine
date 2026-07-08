@@ -157,16 +157,16 @@ public class PanelControl extends JPanel {
         botones.setOpaque(false);
 
         JButton btnReservar = crearBoton("Reservar Butaca",
-                new Color(99, 102, 241), new Color(124, 58, 237));
+                UIConstants.COLOR_RESERVADO, UIConstants.COLOR_RESERVADO_DARK);
         btnReservar.addActionListener(e -> onReservarClick());
 
-        JButton btnCancelar = crearBoton("Cancelar Reserva",
-                new Color(239, 68, 68), new Color(220, 38, 38));
-        btnCancelar.addActionListener(e -> onCancelarClick());
+        JButton btnOcupar = crearBoton("Ocupar Butaca",
+                UIConstants.COLOR_OCUPADO, UIConstants.COLOR_OCUPADO_DARK);
+        btnOcupar.addActionListener(e -> onOcuparClick());
 
-        JButton btnContar = crearBoton("Contar Libres",
-                new Color(34, 197, 94), new Color(22, 163, 74));
-        btnContar.addActionListener(e -> onContarClick());
+        JButton btnCancelar = crearBoton("Cancelar Reserva",
+                UIConstants.BTN_SECUNDARIO, UIConstants.BTN_SECUNDARIO_HOVER);
+        btnCancelar.addActionListener(e -> onCancelarClick());
 
         boolean puedeAdmin = rol == Rol.ADMIN;
         JButton btnLimpiar = crearBoton(
@@ -176,8 +176,8 @@ public class PanelControl extends JPanel {
         btnLimpiar.addActionListener(e -> onLimpiarClick());
 
         botones.add(btnReservar);
+        botones.add(btnOcupar);
         botones.add(btnCancelar);
-        botones.add(btnContar);
         botones.add(btnLimpiar);
 
         panel.add(botones, BorderLayout.CENTER);
@@ -315,12 +315,15 @@ public class PanelControl extends JPanel {
         }
     }
 
-    private void onContarClick() {
-        JOptionPane.showMessageDialog(this,
-            String.format("Libres: %d%nReservadas: %d%nOcupadas: %d%nTotal: %d",
-                salaQuery.contarLibres(), salaQuery.contarReservadas(),
-                salaQuery.contarOcupadas(), salaQuery.totalButacas()),
-            "Conteo de Butacas", JOptionPane.INFORMATION_MESSAGE);
+    private void onOcuparClick() {
+        int fila = filaSeleccionada(), col = columnaSeleccionada();
+        try {
+            salaService.ocupar(fila, col);
+            notificarCambio();
+            mostrarInfo("Asiento F" + (fila + 1) + "-C" + (col + 1) + " ocupado exitosamente.");
+        } catch (PosicionInvalidaException ex) { 
+            mostrarError("Posición inválida."); 
+        }
     }
 
     // ── ACTUALIZACIÓN ────────────────────────────────────────────────────────
