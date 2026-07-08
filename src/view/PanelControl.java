@@ -4,66 +4,44 @@ import exception.AsientoNoReservadoException;
 import exception.AsientoOcupadoException;
 import exception.AsientoYaReservadoException;
 import exception.PosicionInvalidaException;
+import model.Rol;
 import service.interfaces.ISalaQuery;
 import service.interfaces.ISalaService;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JSpinner;
-import javax.swing.JTextField;
-import javax.swing.SpinnerNumberModel;
+import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.GridLayout;
-import java.awt.RenderingHints;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.geom.RoundRectangle2D;
 
-/**
- * Panel con los botones de acción del sistema: Reservar, Cancelar Reserva
- * y Contar Libres. Cada botón tiene su propio ActionListener que delega
- * en ISalaService / ISalaQuery y captura las excepciones del backend.
- */
 public class PanelControl extends JPanel {
 
     private final ISalaService salaService;
-    private final ISalaQuery salaQuery;
-    private final int filas;
-    private final int columnas;
-    private JSpinner spinFila;
-    private JSpinner spinColumna;
-    private JLabel lblEstadisticas;
-    private Runnable alCambiarEstado;
+    private final ISalaQuery   salaQuery;
+    private final Rol          rol;
+    private final int filas, columnas;
 
-    /**
-     * Crea el panel de control recibiendo las dependencias del backend
-     * por constructor.
-     * @param salaService servicio de operaciones de escritura.
-     * @param salaQuery   servicio de consultas de solo lectura.
-     */
-    public PanelControl(ISalaService salaService, ISalaQuery salaQuery) {
+    private JSpinner    spinFila, spinColumna;
+    private JLabel      lblSeatDisplay;
+    private JLabel      lblOcupacion;
+    private PanelBarras panelBarras;
+    private Runnable    alCambiarEstado;
+
+    public PanelControl(ISalaService salaService, ISalaQuery salaQuery, Rol rol) {
         this.salaService = salaService;
-        this.salaQuery = salaQuery;
-        var matriz = salaQuery.obtenerMatriz();
-        this.filas = matriz.length;
-        this.columnas = matriz.length > 0 ? matriz[0].length : 0;
+        this.salaQuery   = salaQuery;
+        this.rol         = rol;
+        var m = salaQuery.obtenerMatriz();
+        this.filas    = m.length;
+        this.columnas = m.length > 0 ? m[0].length : 0;
         setOpaque(false);
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         inicializarComponentes();
         actualizarEstadisticas();
     }
 
-    // Solo crea y posiciona componentes
     private void inicializarComponentes() {
         add(crearTitulo());
         add(Box.createVerticalStrut(12));
@@ -74,254 +52,423 @@ public class PanelControl extends JPanel {
         add(crearPanelEstadisticas());
     }
 
+    // ── TÍTULO ───────────────────────────────────────────────────────────────
+
     private JPanel crearTitulo() {
-        JPanel panel = new JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 0, 0));
-        panel.setOpaque(false);
-        JLabel lbl = new JLabel("⚙  Panel de Control");
+        JPanel p = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 2)) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                // Gradient underline (purple → transparent)
+                g2.setPaint(new GradientPaint(0, 0, new Color(99, 102, 241),
+                        getWidth() * 0.65f, 0, new Color(99, 102, 241, 0)));
+                g2.fillRect(0, getHeight() - 2, getWidth(), 2);
+                g2.dispose();
+            }
+        };
+        p.setOpaque(false);
+        p.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        JLabel lbl = new JLabel("Panel de Control");
         lbl.setFont(UIConstants.FUENTE_SUBTITULO);
         lbl.setForeground(UIConstants.TEXTO_PRIMARIO);
-        panel.add(lbl);
-        return panel;
+        p.add(lbl);
+        return p;
     }
 
+    // ── SELECTOR DE BUTACA ───────────────────────────────────────────────────
+
     private JPanel crearPanelCoordenadas() {
-        JPanel panel = crearTarjeta();
-        panel.setLayout(new java.awt.BorderLayout(0, 8));
+        JPanel panel = crearTarjeta(new Color(59, 130, 246)); // blue accent
+        panel.setLayout(new BorderLayout(0, 10));
 
         JLabel titulo = new JLabel("Seleccionar Butaca");
         titulo.setFont(UIConstants.FUENTE_NEGRITA);
-        titulo.setForeground(UIConstants.TEXTO_PRIMARIO);
-        panel.add(titulo, java.awt.BorderLayout.NORTH);
+        titulo.setForeground(new Color(147, 197, 253)); // light blue
+        panel.add(titulo, BorderLayout.NORTH);
 
-        JPanel campos = new JPanel(new GridLayout(1, 4, 8, 0));
-        campos.setOpaque(false);
+        JPanel centro = new JPanel(new BorderLayout(0, 8));
+        centro.setOpaque(false);
 
-        JLabel lblFila = etiqueta("Fila:");
-        spinFila = crearSpinner(filas);
-
-        JLabel lblCol = etiqueta("Columna:");
-        spinColumna = crearSpinner(columnas);
-
-        campos.add(lblFila);
-        campos.add(spinFila);
-        campos.add(lblCol);
-        campos.add(spinColumna);
-
-        panel.add(campos, java.awt.BorderLayout.CENTER);
-        return panel;
-    }
-
-    private JPanel crearPanelBotones() {
-        JPanel panel = crearTarjeta();
-        panel.setLayout(new java.awt.BorderLayout(0, 8));
-
-        JLabel titulo = new JLabel("Operaciones");
-        titulo.setFont(UIConstants.FUENTE_NEGRITA);
-        titulo.setForeground(UIConstants.TEXTO_PRIMARIO);
-        panel.add(titulo, java.awt.BorderLayout.NORTH);
-
-        JPanel botones = new JPanel(new GridLayout(3, 1, 0, 8));
-        botones.setOpaque(false);
-
-        JButton btnReservar = crearBoton("Reservar Butaca", UIConstants.BTN_PRIMARIO);
-        btnReservar.addActionListener(e -> onReservarClick());
-
-        JButton btnCancelar = crearBoton("Cancelar Reserva", UIConstants.BTN_PELIGRO);
-        btnCancelar.addActionListener(e -> onCancelarClick());
-
-        JButton btnContar = crearBoton("Contar Libres", UIConstants.BTN_EXITO);
-        btnContar.addActionListener(e -> onContarClick());
-
-        botones.add(btnReservar);
-        botones.add(btnCancelar);
-        botones.add(btnContar);
-
-        panel.add(botones, java.awt.BorderLayout.CENTER);
-        return panel;
-    }
-
-    private JPanel crearPanelEstadisticas() {
-        JPanel panel = crearTarjeta();
-        panel.setLayout(new java.awt.BorderLayout(0, 6));
-
-        JLabel titulo = new JLabel("Estadísticas");
-        titulo.setFont(UIConstants.FUENTE_NEGRITA);
-        titulo.setForeground(UIConstants.TEXTO_PRIMARIO);
-        panel.add(titulo, java.awt.BorderLayout.NORTH);
-
-        lblEstadisticas = new JLabel();
-        lblEstadisticas.setFont(UIConstants.FUENTE_CUERPO);
-        panel.add(lblEstadisticas, java.awt.BorderLayout.CENTER);
-        return panel;
-    }
-
-    // -----------------------------------------------------------
-    // HANDLERS — PARADIGMA: Orientado a Eventos
-    // -----------------------------------------------------------
-
-    private void onReservarClick() {
-        int fila = filaSeleccionada();
-        int columna = columnaSeleccionada();
-        DialogReserva dialogo = new DialogReserva(ventanaPadre(), fila, columna);
-        dialogo.setVisible(true);
-        if (dialogo.isConfirmado()) {
-            ejecutarReserva(fila, columna);
-        }
-    }
-
-    private void ejecutarReserva(int fila, int columna) {
-        try {
-            salaService.reservar(fila, columna);
-            notificarCambio();
-        } catch (PosicionInvalidaException ex) {
-            mostrarError("Posición inválida: " + ex.getMessage());
-        } catch (AsientoOcupadoException ex) {
-            mostrarError("Este asiento está ocupado.");
-        } catch (AsientoYaReservadoException ex) {
-            mostrarError("Este asiento ya fue reservado.");
-        }
-    }
-
-    private void onCancelarClick() {
-        int fila = filaSeleccionada();
-        int columna = columnaSeleccionada();
-        try {
-            salaService.cancelar(fila, columna);
-            notificarCambio();
-            mostrarInfo("Reserva cancelada en F" + (fila + 1) + "-C" + (columna + 1) + ".");
-        } catch (PosicionInvalidaException ex) {
-            mostrarError("Posición inválida: " + ex.getMessage());
-        } catch (AsientoNoReservadoException ex) {
-            mostrarError("Este asiento no está reservado, no se puede cancelar.");
-        }
-    }
-
-    private void onContarClick() {
-        long libres = salaQuery.contarLibres();
-        long reservadas = salaQuery.contarReservadas();
-        long ocupadas = salaQuery.contarOcupadas();
-        int total = salaQuery.totalButacas();
-
-        String mensaje = String.format(
-            "Butacas Libres: %d%nButacas Reservadas: %d%nButacas Ocupadas: %d%nTotal: %d",
-            libres, reservadas, ocupadas, total);
-        JOptionPane.showMessageDialog(this, mensaje, "Conteo de Butacas", JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    // -----------------------------------------------------------
-    // Utilidades internas
-    // -----------------------------------------------------------
-
-    private int filaSeleccionada() {
-        return (int) spinFila.getValue() - 1;
-    }
-
-    private int columnaSeleccionada() {
-        return (int) spinColumna.getValue() - 1;
-    }
-
-    /**
-     * Refresca el texto de estadísticas con los valores actuales del backend.
-     */
-    public void actualizarEstadisticas() {
-        long libres = salaQuery.contarLibres();
-        long reservadas = salaQuery.contarReservadas();
-        long ocupadas = salaQuery.contarOcupadas();
-        int total = salaQuery.totalButacas();
-
-        lblEstadisticas.setText(String.format(
-            "<html>"
-            + "<span style='color:#22c55e'>Libres: <b>%d</b></span><br>"
-            + "<span style='color:#fbbf24'>Reservadas: <b>%d</b></span><br>"
-            + "<span style='color:#ef4444'>Ocupadas: <b>%d</b></span><br>"
-            + "<span style='color:#94a3b8'>Total: <b>%d</b></span>"
-            + "</html>",
-            libres, reservadas, ocupadas, total));
-    }
-
-    /**
-     * Define el callback a invocar tras una operación exitosa, para que
-     * MainFrame pueda refrescar la grilla visual de PanelSala.
-     * @param callback acción a ejecutar tras cada cambio de estado.
-     */
-    public void setAlCambiarEstado(Runnable callback) {
-        this.alCambiarEstado = callback;
-    }
-
-    private void notificarCambio() {
-        actualizarEstadisticas();
-        if (alCambiarEstado != null) {
-            alCambiarEstado.run();
-        }
-    }
-
-    private void mostrarError(String mensaje) {
-        JOptionPane.showMessageDialog(this, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
-    }
-
-    private void mostrarInfo(String mensaje) {
-        JOptionPane.showMessageDialog(this, mensaje, "Información", JOptionPane.INFORMATION_MESSAGE);
-    }
-
-    private java.awt.Frame ventanaPadre() {
-        return (java.awt.Frame) javax.swing.SwingUtilities.getWindowAncestor(this);
-    }
-
-    // -----------------------------------------------------------
-    // Helpers de estilo visual
-    // -----------------------------------------------------------
-
-    private JPanel crearTarjeta() {
-        JPanel panel = new JPanel() {
+        // Dynamic seat display box
+        JPanel displayPanel = new JPanel(new GridBagLayout()) {
             @Override
             protected void paintComponent(Graphics g) {
                 Graphics2D g2 = (Graphics2D) g.create();
                 g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-                g2.setColor(UIConstants.BG_TARJETA);
-                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 14, 14));
-                g2.setColor(UIConstants.BORDE);
+                g2.setColor(new Color(14, 12, 38));
+                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 10, 10));
+                g2.setColor(new Color(38, 48, 88));
                 g2.setStroke(new BasicStroke(1f));
-                g2.draw(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 14, 14));
+                g2.draw(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 10, 10));
                 g2.dispose();
+                super.paintComponent(g);
             }
         };
-        panel.setOpaque(false);
-        panel.setBorder(new EmptyBorder(14, 16, 14, 16));
-        panel.setAlignmentX(java.awt.Component.LEFT_ALIGNMENT);
+        displayPanel.setOpaque(false);
+        displayPanel.setPreferredSize(new Dimension(0, 46));
+
+        lblSeatDisplay = new JLabel("F 1  —  C 1");
+        lblSeatDisplay.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        lblSeatDisplay.setForeground(new Color(139, 92, 246));
+        displayPanel.add(lblSeatDisplay);
+
+        // Spinner row
+        JPanel spRow = new JPanel(new GridLayout(1, 4, 8, 0));
+        spRow.setOpaque(false);
+        spRow.add(etiqueta("Fila:"));
+        spinFila = crearSpinner(filas);
+        spRow.add(spinFila);
+        spRow.add(etiqueta("Col:"));
+        spinColumna = crearSpinner(columnas);
+        spRow.add(spinColumna);
+
+        // Live update of display
+        ChangeListener refresh = e -> actualizarDisplayButaca();
+        spinFila.addChangeListener(refresh);
+        spinColumna.addChangeListener(refresh);
+
+        centro.add(displayPanel, BorderLayout.NORTH);
+        centro.add(spRow,        BorderLayout.CENTER);
+        panel.add(centro, BorderLayout.CENTER);
         return panel;
     }
 
-    private JButton crearBoton(String texto, Color color) {
-        JButton btn = new JButton(texto);
+    private void actualizarDisplayButaca() {
+        int f = (int) spinFila.getValue();
+        int c = (int) spinColumna.getValue();
+        lblSeatDisplay.setText("F " + f + "  —  C " + c);
+    }
+
+    // ── BOTONES ──────────────────────────────────────────────────────────────
+
+    private JPanel crearPanelBotones() {
+        JPanel panel = crearTarjeta(new Color(139, 92, 246)); // purple accent
+        panel.setLayout(new BorderLayout(0, 10));
+
+        JLabel titulo = new JLabel("Operaciones");
+        titulo.setFont(UIConstants.FUENTE_NEGRITA);
+        titulo.setForeground(new Color(196, 181, 253)); // light purple
+        panel.add(titulo, BorderLayout.NORTH);
+
+        JPanel botones = new JPanel(new GridLayout(4, 1, 0, 8));
+        botones.setOpaque(false);
+
+        JButton btnReservar = crearBoton("Reservar Butaca",
+                new Color(99, 102, 241), new Color(124, 58, 237));
+        btnReservar.addActionListener(e -> onReservarClick());
+
+        JButton btnCancelar = crearBoton("Cancelar Reserva",
+                new Color(239, 68, 68), new Color(220, 38, 38));
+        btnCancelar.addActionListener(e -> onCancelarClick());
+
+        JButton btnContar = crearBoton("Contar Libres",
+                new Color(34, 197, 94), new Color(22, 163, 74));
+        btnContar.addActionListener(e -> onContarClick());
+
+        boolean puedeAdmin = rol == Rol.ADMIN;
+        JButton btnLimpiar = crearBoton(
+                puedeAdmin ? "Limpiar Sala" : "Limpiar Sala  [Admin]",
+                puedeAdmin ? new Color(71, 85, 105) : new Color(42, 46, 52),
+                puedeAdmin ? new Color(51, 65, 85)  : new Color(30, 33, 38));
+        btnLimpiar.addActionListener(e -> onLimpiarClick());
+
+        botones.add(btnReservar);
+        botones.add(btnCancelar);
+        botones.add(btnContar);
+        botones.add(btnLimpiar);
+
+        panel.add(botones, BorderLayout.CENTER);
+        return panel;
+    }
+
+    // ── ESTADÍSTICAS VISUALES ────────────────────────────────────────────────
+
+    private JPanel crearPanelEstadisticas() {
+        JPanel panel = crearTarjeta(new Color(34, 197, 94)); // green accent
+        panel.setLayout(new BorderLayout(0, 10));
+
+        // Header: title + live occupancy %
+        JPanel headerRow = new JPanel(new BorderLayout());
+        headerRow.setOpaque(false);
+
+        JLabel titulo = new JLabel("Estadísticas");
+        titulo.setFont(UIConstants.FUENTE_NEGRITA);
+        titulo.setForeground(UIConstants.TEXTO_PRIMARIO);
+
+        lblOcupacion = new JLabel("100% libre");
+        lblOcupacion.setFont(new Font("Segoe UI", Font.BOLD, 11));
+        lblOcupacion.setForeground(UIConstants.COLOR_LIBRE);
+
+        headerRow.add(titulo,       BorderLayout.WEST);
+        headerRow.add(lblOcupacion, BorderLayout.EAST);
+        panel.add(headerRow, BorderLayout.NORTH);
+
+        panelBarras = new PanelBarras();
+        panelBarras.setPreferredSize(new Dimension(0, 96));
+        panel.add(panelBarras, BorderLayout.CENTER);
+        return panel;
+    }
+
+    // ── PANEL DE BARRAS ──────────────────────────────────────────────────────
+
+    private static class PanelBarras extends JPanel {
+        private long libres = 0, reservadas = 0, ocupadas = 0;
+        private int  total  = 1;
+
+        PanelBarras() { setOpaque(false); }
+
+        void actualizar(long l, long r, long o, int t) {
+            libres = l; reservadas = r; ocupadas = o;
+            total  = t > 0 ? t : 1;
+            repaint();
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            Graphics2D g2 = (Graphics2D) g.create();
+            g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+            int barH = 7, gap = 26, startY = 4, maxW = getWidth() - 62;
+            dibujarBarra(g2, "Libres",     libres,     UIConstants.COLOR_LIBRE,     maxW, startY,           barH);
+            dibujarBarra(g2, "Reservadas", reservadas, UIConstants.COLOR_RESERVADO, maxW, startY + gap,     barH);
+            dibujarBarra(g2, "Ocupadas",   ocupadas,   UIConstants.COLOR_OCUPADO,   maxW, startY + gap * 2, barH);
+
+            // Total label
+            g2.setFont(new Font("Segoe UI", Font.PLAIN, 10));
+            g2.setColor(UIConstants.TEXTO_TENUE);
+            g2.drawString("Total: " + total + " butacas", 0, startY + gap * 3 + 2);
+            g2.dispose();
+        }
+
+        private void dibujarBarra(Graphics2D g2, String label, long valor, Color color,
+                                   int maxW, int y, int barH) {
+            int pct    = (int)(100.0 * valor / total);
+            int filled = (int)((double) valor / total * maxW);
+
+            g2.setFont(new Font("Segoe UI", Font.PLAIN, 11));
+            g2.setColor(UIConstants.TEXTO_SECUNDARIO);
+            g2.drawString(label, 0, y + barH);
+
+            int barY = y + barH + 4;
+
+            // Background track
+            g2.setColor(new Color(40, 38, 75));
+            g2.fill(new RoundRectangle2D.Float(0, barY, maxW, barH, barH, barH));
+
+            // Filled segment
+            if (filled > 0) {
+                g2.setPaint(new GradientPaint(0, 0, color, filled, 0, color.brighter()));
+                g2.fill(new RoundRectangle2D.Float(0, barY, filled, barH, barH, barH));
+            }
+
+            // Percentage label
+            g2.setFont(new Font("Segoe UI", Font.BOLD, 10));
+            g2.setColor(color);
+            g2.drawString(valor + " (" + pct + "%)", maxW + 5, barY + barH);
+        }
+    }
+
+    // ── HANDLERS ─────────────────────────────────────────────────────────────
+
+    private void onReservarClick() {
+        int fila = filaSeleccionada(), col = columnaSeleccionada();
+        DialogReserva d = new DialogReserva(ventanaPadre(), fila, col);
+        d.setVisible(true);
+        if (d.isConfirmado()) ejecutarReserva(fila, col);
+    }
+
+    private void ejecutarReserva(int fila, int col) {
+        try {
+            salaService.reservar(fila, col);
+            notificarCambio();
+        } catch (PosicionInvalidaException ex)     { mostrarError("Posición inválida."); }
+          catch (AsientoOcupadoException ex)       { mostrarError("Este asiento está ocupado."); }
+          catch (AsientoYaReservadoException ex)   { mostrarError("Este asiento ya fue reservado."); }
+    }
+
+    private void onCancelarClick() {
+        int fila = filaSeleccionada(), col = columnaSeleccionada();
+        try {
+            salaService.cancelar(fila, col);
+            notificarCambio();
+            mostrarInfo("Reserva cancelada en F" + (fila + 1) + "-C" + (col + 1) + ".");
+        } catch (PosicionInvalidaException ex)  { mostrarError("Posición inválida."); }
+          catch (AsientoNoReservadoException ex) { mostrarError("El asiento no está reservado."); }
+    }
+
+    private void onLimpiarClick() {
+        if (rol == Rol.CAJERO) {
+            mostrarError("Sin permisos. Solo el administrador puede limpiar la sala.");
+            return;
+        }
+        int c = JOptionPane.showConfirmDialog(this,
+            "¿Desea limpiar todos los estados de la sala?",
+            "Limpiar Sala", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+        if (c == JOptionPane.YES_OPTION) {
+            salaService.limpiarSala();
+            notificarCambio();
+            mostrarInfo("Sala limpiada. Todas las butacas están libres.");
+        }
+    }
+
+    private void onContarClick() {
+        JOptionPane.showMessageDialog(this,
+            String.format("Libres: %d%nReservadas: %d%nOcupadas: %d%nTotal: %d",
+                salaQuery.contarLibres(), salaQuery.contarReservadas(),
+                salaQuery.contarOcupadas(), salaQuery.totalButacas()),
+            "Conteo de Butacas", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    // ── ACTUALIZACIÓN ────────────────────────────────────────────────────────
+
+    public void actualizarEstadisticas() {
+        long l = salaQuery.contarLibres();
+        long r = salaQuery.contarReservadas();
+        long o = salaQuery.contarOcupadas();
+        int  t = salaQuery.totalButacas();
+        panelBarras.actualizar(l, r, o, t);
+
+        // Live occupancy label
+        if (lblOcupacion != null && t > 0) {
+            int pctLibre = (int)(100.0 * l / t);
+            lblOcupacion.setText(pctLibre + "% libre");
+            Color color = pctLibre > 60 ? UIConstants.COLOR_LIBRE
+                        : pctLibre > 30 ? UIConstants.COLOR_RESERVADO
+                        : UIConstants.COLOR_OCUPADO;
+            lblOcupacion.setForeground(color);
+        }
+    }
+
+    public void setAlCambiarEstado(Runnable cb) { this.alCambiarEstado = cb; }
+
+    private void notificarCambio() {
+        actualizarEstadisticas();
+        if (alCambiarEstado != null) alCambiarEstado.run();
+    }
+
+    // ── UTILIDADES ───────────────────────────────────────────────────────────
+
+    private int filaSeleccionada()    { return (int) spinFila.getValue() - 1; }
+    private int columnaSeleccionada() { return (int) spinColumna.getValue() - 1; }
+
+    private void mostrarError(String m) {
+        JOptionPane.showMessageDialog(this, m, "Error", JOptionPane.ERROR_MESSAGE);
+    }
+    private void mostrarInfo(String m) {
+        JOptionPane.showMessageDialog(this, m, "Información", JOptionPane.INFORMATION_MESSAGE);
+    }
+    private Frame ventanaPadre() {
+        return (Frame) SwingUtilities.getWindowAncestor(this);
+    }
+
+    // ── HELPERS VISUALES ─────────────────────────────────────────────────────
+
+    private JPanel crearTarjeta(Color accentColor) {
+        JPanel p = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                // Background
+                g2.setColor(UIConstants.BG_TARJETA);
+                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 14, 14));
+                // Border + top accent
+                if (accentColor != null) {
+                    int ar = accentColor.getRed(), ag = accentColor.getGreen(), ab = accentColor.getBlue();
+                    // Colored border (low opacity)
+                    g2.setColor(new Color(ar, ag, ab, 55));
+                    g2.setStroke(new BasicStroke(1f));
+                    g2.draw(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 14, 14));
+                    // Top gradient accent strip
+                    g2.setPaint(new GradientPaint(0, 0, new Color(ar, ag, ab, 190),
+                            getWidth() * 0.7f, 0, new Color(ar, ag, ab, 0)));
+                    g2.fillRoundRect(0, 0, getWidth(), 3, 14, 14);
+                } else {
+                    g2.setColor(UIConstants.BORDE);
+                    g2.setStroke(new BasicStroke(1f));
+                    g2.draw(new RoundRectangle2D.Float(0, 0, getWidth() - 1, getHeight() - 1, 14, 14));
+                }
+                g2.dispose();
+            }
+        };
+        p.setOpaque(false);
+        p.setBorder(new EmptyBorder(12, 14, 12, 14));
+        p.setAlignmentX(Component.LEFT_ALIGNMENT);
+        return p;
+    }
+
+    private JButton crearBoton(String texto, Color c1, Color c2) {
+        JButton btn = new JButton(texto) {
+            boolean hovered = false;
+            {
+                addMouseListener(new MouseAdapter() {
+                    public void mouseEntered(MouseEvent e) { hovered = true;  repaint(); }
+                    public void mouseExited (MouseEvent e) { hovered = false; repaint(); }
+                });
+            }
+            @Override
+            protected void paintComponent(Graphics g) {
+                Graphics2D g2 = (Graphics2D) g.create();
+                g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                Color a = hovered ? c1.brighter() : c1;
+                Color b = hovered ? c2.brighter() : c2;
+                g2.setPaint(new GradientPaint(0, 0, a, getWidth(), 0, b));
+                g2.fill(new RoundRectangle2D.Float(0, 0, getWidth(), getHeight(), 8, 8));
+                // Subtle dot indicator on left
+                g2.setColor(new Color(255, 255, 255, 65));
+                g2.fillOval(10, getHeight() / 2 - 3, 6, 6);
+                g2.dispose();
+                super.paintComponent(g);
+            }
+        };
         btn.setFont(UIConstants.FUENTE_BOTON);
-        btn.setBackground(color);
         btn.setForeground(Color.WHITE);
+        btn.setContentAreaFilled(false);
         btn.setFocusPainted(false);
         btn.setBorderPainted(false);
-        btn.setOpaque(true);
+        btn.setOpaque(false);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btn.setPreferredSize(new Dimension(0, 38));
+        btn.setHorizontalAlignment(SwingConstants.LEFT);
+        btn.setBorder(new EmptyBorder(0, 26, 0, 8));
+        btn.setPreferredSize(new Dimension(0, 42));
         return btn;
     }
 
-    private JLabel etiqueta(String texto) {
-        JLabel lbl = new JLabel(texto);
-        lbl.setFont(UIConstants.FUENTE_CUERPO);
-        lbl.setForeground(UIConstants.TEXTO_SECUNDARIO);
-        return lbl;
+    private JLabel etiqueta(String t) {
+        JLabel l = new JLabel(t);
+        l.setFont(UIConstants.FUENTE_CUERPO);
+        l.setForeground(UIConstants.TEXTO_SECUNDARIO);
+        return l;
     }
 
     private JSpinner crearSpinner(int max) {
-        JSpinner spinner = new JSpinner(new SpinnerNumberModel(1, 1, max, 1));
-        spinner.setFont(UIConstants.FUENTE_NEGRITA);
-        JComponent editor = spinner.getEditor();
-        if (editor instanceof JSpinner.DefaultEditor) {
-            JTextField tf = ((JSpinner.DefaultEditor) editor).getTextField();
-            tf.setBackground(UIConstants.BG_FONDO);
-            tf.setForeground(UIConstants.TEXTO_PRIMARIO);
-            tf.setCaretColor(UIConstants.TEXTO_PRIMARIO);
-            tf.setBorder(BorderFactory.createLineBorder(UIConstants.BORDE));
+        JSpinner sp = new JSpinner(new SpinnerNumberModel(1, 1, max, 1));
+        sp.setFont(UIConstants.FUENTE_NEGRITA);
+        sp.setBackground(new Color(14, 12, 38));
+        JComponent ed = sp.getEditor();
+        if (ed instanceof JSpinner.DefaultEditor) {
+            JTextField tf = ((JSpinner.DefaultEditor) ed).getTextField();
+            tf.setBackground(new Color(14, 12, 38));
+            tf.setForeground(new Color(139, 92, 246));
+            tf.setCaretColor(new Color(139, 92, 246));
+            tf.setFont(new Font("Segoe UI", Font.BOLD, 13));
+            tf.setHorizontalAlignment(JTextField.CENTER);
+            tf.setBorder(new EmptyBorder(4, 2, 4, 2));
         }
-        return spinner;
+        sp.setBorder(BorderFactory.createLineBorder(new Color(40, 38, 80), 1, true));
+        // FIX-4: oscurecer botones de flechas del spinner
+        for (Component c : sp.getComponents()) {
+            if (c instanceof JButton) {
+                JButton btn = (JButton) c;
+                btn.setBackground(new Color(30, 28, 70));
+                btn.setForeground(new Color(139, 92, 246));
+                btn.setOpaque(true);
+            }
+        }
+        return sp;
     }
 }

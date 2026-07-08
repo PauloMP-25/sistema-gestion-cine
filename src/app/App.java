@@ -1,5 +1,6 @@
 package app;
 
+import model.Rol;
 import model.SalaCine;
 import model.SalaFactory;
 import service.GestorSalas;
@@ -7,58 +8,100 @@ import service.SalaQuery;
 import service.SalaService;
 import service.interfaces.ISalaQuery;
 import service.interfaces.ISalaService;
-import view.DialogTamanoSala;
+import view.DialogGestionSalas;
+import view.DialogSeleccionarSala;
+import view.LoginFrame;
 import view.MainFrame;
 
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import java.awt.Color;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
-/**
- * Punto de entrada principal del sistema de gestión de butacas de cine.
- * Es el único lugar autorizado para instanciar clases concretas del backend
- * e inyectarlas en el frontend a través de las interfaces de contrato.
- *
- * <p>Flujo de transición: mientras el equipo frontend implementa el PanelLobby,
- * se conserva el DialogTamanoSala para crear la primera sala. Una vez que el
- * lobby esté listo, este archivo usará directamente {@code gestorSalas} y
- * recibirá la nueva ventana principal sin el diálogo previo.</p>
- */
 public class App {
 
-    // INICIO RUTINA: Punto de entrada del sistema
     public static void main(String[] args) {
-        // El gestor de salas es la única instancia global del sistema
         GestorSalas gestorSalas = new GestorSalas();
-
+        cargarSalasDemo(gestorSalas);
         SwingUtilities.invokeLater(() -> iniciarSistema(gestorSalas));
     }
-    // FIN RUTINA: Punto de entrada del sistema
 
-    // PARADIGMA: Orientado a Eventos — invokeLater asegura la ejecución en el EDT
+    // Salas disponibles por defecto para que el cajero pueda operar
+    // sin necesidad de que el admin haya creado salas en la misma sesión.
+    private static void cargarSalasDemo(GestorSalas gestorSalas) {
+        gestorSalas.agregarSala(SalaFactory.crearSala("Sala 1 — Principal",  5 *  8,  5,  8));
+        gestorSalas.agregarSala(SalaFactory.crearSala("Sala 2 — VIP",        4 *  6,  4,  6));
+        gestorSalas.agregarSala(SalaFactory.crearSala("Sala 3 — Norte",      8 * 10,  8, 10));
+    }
+
+    private static void configurarUI() {
+        Color bg    = new Color(22, 20, 55);
+        Color texto = new Color(210, 210, 235);
+        Color boton = new Color(51, 65, 105);
+        UIManager.put("OptionPane.background",        bg);
+        UIManager.put("Panel.background",             bg);
+        UIManager.put("OptionPane.messageForeground", texto);
+        UIManager.put("Button.background",            boton);
+        UIManager.put("Button.foreground",            texto);
+    }
+
     private static void iniciarSistema(GestorSalas gestorSalas) {
-        DialogTamanoSala dialogo = new DialogTamanoSala();
-        dialogo.setVisible(true);
+        configurarUI();
 
-        if (!dialogo.isConfirmado()) {
-            System.exit(0);
-        }
+        LoginFrame login = new LoginFrame();
+        login.setVisible(true);
+        if (!login.isLoginExitoso()) System.exit(0);
 
-        SalaCine sala = crearSalaDesdeDialogo(dialogo);
-        gestorSalas.agregarSala(sala);
+        Rol rol = "admin".equals(login.getUsuarioActual()) ? Rol.ADMIN : Rol.CAJERO;
 
+        SalaCine sala;
+        if (rol == Rol.ADMIN) sala = flujoAdmin(gestorSalas);
+        else                  sala = flujoCajero(gestorSalas);
+        if (sala == null) System.exit(0);
+
+        abrirMainFrame(gestorSalas, rol, sala);
+    }
+
+    private static void abrirMainFrame(GestorSalas gestorSalas, Rol rol, SalaCine sala) {
         ISalaService servicio = new SalaService(sala);
-        ISalaQuery consulta   = new SalaQuery(sala);
+        ISalaQuery   consulta = new SalaQuery(sala);
+        MainFrame ventana = new MainFrame(servicio, consulta, rol, sala.getNombre(), gestorSalas);
 
-        // TODO (frontend): reemplazar MainFrame(servicio, consulta) por
-        // MainFrame(gestorSalas) cuando el equipo frontend implemente el lobby.
-        MainFrame ventana = new MainFrame(servicio, consulta);
+        ventana.addWindowListener(new WindowAdapter() {
+            @Override public void windowClosed(WindowEvent e) {
+                if (ventana.isLogout()) {
+                    SwingUtilities.invokeLater(() -> iniciarSistema(gestorSalas));
+                } else if (ventana.isCambioSala() && ventana.getNuevaSala() != null) {
+                    SwingUtilities.invokeLater(() ->
+                        abrirMainFrame(gestorSalas, rol, ventana.getNuevaSala()));
+                }
+            }
+        });
+
         ventana.setVisible(true);
     }
 
-    // INICIO RUTINA: Creación de sala desde el diálogo de configuración
-    private static SalaCine crearSalaDesdeDialogo(DialogTamanoSala dialogo) {
-        int filas = dialogo.getFilasSeleccionadas();
-        int cols  = dialogo.getColumnasSeleccionadas();
-        return SalaFactory.crearSala("Sala Principal", filas * cols, filas, cols);
+    // Admin: gestiona salas (crear, renombrar, eliminar) y elige una para entrar
+    private static SalaCine flujoAdmin(GestorSalas gestorSalas) {
+        DialogGestionSalas dialogo = new DialogGestionSalas(gestorSalas);
+        dialogo.setVisible(true);
+        if (!dialogo.isConfirmado()) return null;
+        return dialogo.getSalaSeleccionada();
     }
-    // FIN RUTINA: Creación de sala desde el diálogo de configuración
+
+    // Cajero: elige una de las salas existentes
+    private static SalaCine flujoCajero(GestorSalas gestorSalas) {
+        if (gestorSalas.listarSalas().isEmpty()) {
+            JOptionPane.showMessageDialog(null,
+                    "No hay salas disponibles.\nContacte al administrador.",
+                    "Sin salas", JOptionPane.WARNING_MESSAGE);
+            return null;
+        }
+        DialogSeleccionarSala dialogo = new DialogSeleccionarSala(gestorSalas);
+        dialogo.setVisible(true);
+        if (!dialogo.isConfirmado()) return null;
+        return dialogo.getSalaSeleccionada();
+    }
 }

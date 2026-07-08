@@ -132,8 +132,8 @@ public class BotonButaca extends JButton {
         g2.setStroke(new BasicStroke(1f));
         g2.draw(new RoundRectangle2D.Float(3, 8, w - 7, h - 12, 10, 10));
 
-        // Etiqueta de estado
-        g2.setFont(new Font("Segoe UI", Font.BOLD, 10));
+        // FIX-6: etiqueta más grande y legible
+        g2.setFont(new Font("Segoe UI", Font.BOLD, 13));
         g2.setColor(new Color(255, 255, 255, 210));
         String etiqueta = etiquetaEstado();
         FontMetrics fm = g2.getFontMetrics();

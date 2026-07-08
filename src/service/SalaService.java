@@ -141,6 +141,23 @@ public class SalaService implements ISalaService {
     }
     // FIN RUTINA: Verificación de estado para cancelar
 
+    @Override
+    public void liberar(int fila, int columna) throws PosicionInvalidaException {
+        validarPosicion(fila, columna);
+        cambiarEstado(sala.getButaca(fila, columna), EstadoButaca.LIBRE);
+    }
+
+    // INICIO RUTINA: Limpieza total de la sala
+    @Override
+    public void limpiarSala() {
+        for (Butaca[] fila : sala.getButacas()) {
+            for (Butaca butaca : fila) {
+                butaca.setEstado(EstadoButaca.LIBRE);
+            }
+        }
+    }
+    // FIN RUTINA: Limpieza total de la sala
+
     private void cambiarEstado(Butaca butaca, EstadoButaca nuevoEstado) {
         butaca.setEstado(nuevoEstado);
     }
