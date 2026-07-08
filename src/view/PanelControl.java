@@ -277,15 +277,17 @@ public class PanelControl extends JPanel {
 
     private void onReservarClick() {
         int fila = filaSeleccionada(), col = columnaSeleccionada();
-        DialogReserva d = new DialogReserva(ventanaPadre(), fila, col);
+        int num = (fila * columnas) + col + 1;
+        DialogReserva d = new DialogReserva(ventanaPadre(), fila, col, num);
         d.setVisible(true);
-        if (d.isConfirmado()) ejecutarReserva(fila, col);
+        if (d.isConfirmado()) ejecutarReserva(fila, col, num);
     }
 
-    private void ejecutarReserva(int fila, int col) {
+    private void ejecutarReserva(int fila, int col, int num) {
         try {
             salaService.reservar(fila, col);
             notificarCambio();
+            JOptionPane.showMessageDialog(ventanaPadre(), "Se ha reservado el asiento número " + num + ".", "Información", JOptionPane.INFORMATION_MESSAGE);
         } catch (PosicionInvalidaException ex)     { mostrarError("Posición inválida."); }
           catch (AsientoOcupadoException ex)       { mostrarError("Este asiento está ocupado."); }
           catch (AsientoYaReservadoException ex)   { mostrarError("Este asiento ya fue reservado."); }
@@ -293,10 +295,11 @@ public class PanelControl extends JPanel {
 
     private void onCancelarClick() {
         int fila = filaSeleccionada(), col = columnaSeleccionada();
+        int num = (fila * columnas) + col + 1;
         try {
             salaService.cancelar(fila, col);
             notificarCambio();
-            mostrarInfo("Reserva cancelada en F" + (fila + 1) + "-C" + (col + 1) + ".");
+            JOptionPane.showMessageDialog(ventanaPadre(), "Se ha cancelado la reserva del asiento número " + num + ".", "Información", JOptionPane.INFORMATION_MESSAGE);
         } catch (PosicionInvalidaException ex)  { mostrarError("Posición inválida."); }
           catch (AsientoNoReservadoException ex) { mostrarError("El asiento no está reservado."); }
     }
@@ -306,7 +309,7 @@ public class PanelControl extends JPanel {
             mostrarError("Sin permisos. Solo el administrador puede limpiar la sala.");
             return;
         }
-        int c = JOptionPane.showConfirmDialog(this,
+        int c = JOptionPane.showConfirmDialog(ventanaPadre(),
             "¿Desea limpiar todos los estados de la sala?",
             "Limpiar Sala", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
         if (c == JOptionPane.YES_OPTION) {
@@ -318,12 +321,16 @@ public class PanelControl extends JPanel {
 
     private void onOcuparClick() {
         int fila = filaSeleccionada(), col = columnaSeleccionada();
-        try {
-            salaService.ocupar(fila, col);
-            notificarCambio();
-            mostrarInfo("Asiento F" + (fila + 1) + "-C" + (col + 1) + " ocupado exitosamente.");
-        } catch (PosicionInvalidaException ex) { 
-            mostrarError("Posición inválida."); 
+        int num = (fila * columnas) + col + 1;
+        int confirm = JOptionPane.showConfirmDialog(ventanaPadre(), "¿Confirmar la ocupación para el asiento número " + num + "?", "Confirmar Ocupación", JOptionPane.YES_NO_OPTION);
+        if (confirm == JOptionPane.YES_OPTION) {
+            try {
+                salaService.ocupar(fila, col);
+                notificarCambio();
+                JOptionPane.showMessageDialog(ventanaPadre(), "Se ha ocupado el asiento número " + num + ".", "Información", JOptionPane.INFORMATION_MESSAGE);
+            } catch (PosicionInvalidaException ex) { 
+                mostrarError("Posición inválida."); 
+            }
         }
     }
 
@@ -367,10 +374,10 @@ public class PanelControl extends JPanel {
     }
 
     private void mostrarError(String m) {
-        JOptionPane.showMessageDialog(this, m, "Error", JOptionPane.ERROR_MESSAGE);
+        JOptionPane.showMessageDialog(ventanaPadre(), m, "Error", JOptionPane.ERROR_MESSAGE);
     }
     private void mostrarInfo(String m) {
-        JOptionPane.showMessageDialog(this, m, "Información", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(ventanaPadre(), m, "Información", JOptionPane.INFORMATION_MESSAGE);
     }
     private Frame ventanaPadre() {
         return (Frame) SwingUtilities.getWindowAncestor(this);

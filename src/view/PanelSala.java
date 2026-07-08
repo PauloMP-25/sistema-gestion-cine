@@ -150,9 +150,16 @@ public class PanelSala extends JPanel {
         BotonButaca boton = botones[fila][columna];
         switch (boton.getEstado()) {
             case LIBRE:
-                salaService.reservar(fila, columna);
-                sincronizarBoton(fila, columna);
-                notificarCambio();
+                java.awt.Frame padre = (java.awt.Frame) javax.swing.SwingUtilities.getWindowAncestor(this);
+                int seatNum = (fila * columnas) + columna + 1;
+                DialogReserva d = new DialogReserva(padre, fila, columna, seatNum);
+                d.setVisible(true);
+                if (d.isConfirmado()) {
+                    salaService.reservar(fila, columna);
+                    sincronizarBoton(fila, columna);
+                    notificarCambio();
+                    JOptionPane.showMessageDialog(padre, "Se ha reservado el asiento número " + seatNum + ".", "Información", JOptionPane.INFORMATION_MESSAGE);
+                }
                 break;
             case RESERVADO:
                 manejarButacaReservada(fila, columna);
@@ -181,14 +188,21 @@ public class PanelSala extends JPanel {
             DialogPagoQR pagoQR = new DialogPagoQR(padre, fila, columna);
             pagoQR.setVisible(true);
             if (pagoQR.isAceptado()) {
-                salaService.ocupar(fila, columna);
-                sincronizarBoton(fila, columna);
-                notificarCambio();
+                int seatNum = (fila * columnas) + columna + 1;
+                int confirm = JOptionPane.showConfirmDialog(padre, "¿Confirmar la ocupación para el asiento número " + seatNum + "?", "Confirmar Ocupación", JOptionPane.YES_NO_OPTION);
+                if (confirm == JOptionPane.YES_OPTION) {
+                    salaService.ocupar(fila, columna);
+                    sincronizarBoton(fila, columna);
+                    notificarCambio();
+                    JOptionPane.showMessageDialog(padre, "Se ha ocupado el asiento número " + seatNum + ".", "Información", JOptionPane.INFORMATION_MESSAGE);
+                }
             }
         } else if (opcion == DialogOpcionesButaca.Opcion.CANCELAR) {
             salaService.cancelar(fila, columna);
             sincronizarBoton(fila, columna);
             notificarCambio();
+            int seatNum = (fila * columnas) + columna + 1;
+            JOptionPane.showMessageDialog(padre, "Se ha cancelado la reserva del asiento número " + seatNum + ".", "Información", JOptionPane.INFORMATION_MESSAGE);
         }
     }
 
@@ -228,6 +242,7 @@ public class PanelSala extends JPanel {
     }
 
     private void mostrarError(String mensaje) {
-        JOptionPane.showMessageDialog(this, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
+        java.awt.Frame padre = (java.awt.Frame) javax.swing.SwingUtilities.getWindowAncestor(this);
+        JOptionPane.showMessageDialog(padre, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
     }
 }

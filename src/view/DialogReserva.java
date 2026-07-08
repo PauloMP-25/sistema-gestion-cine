@@ -26,10 +26,10 @@ public class DialogReserva extends JDialog {
      * @param fila    Fila de la butaca (base 0, se muestra en base 1).
      * @param columna Columna de la butaca (base 0, se muestra en base 1).
      */
-    public DialogReserva(Frame padre, int fila, int columna) {
+    public DialogReserva(Frame padre, int fila, int columna, int numeroAsiento) {
         super(padre, "Confirmar Reserva", true);
         this.confirmado = false;
-        inicializarComponentes(fila, columna);
+        inicializarComponentes(fila, columna, numeroAsiento);
         configurarEventos();
         setSize(360, 200);
         setLocationRelativeTo(padre);
@@ -37,7 +37,7 @@ public class DialogReserva extends JDialog {
     }
 
     // Solo crea y posiciona componentes; sin listeners aquí.
-    private void inicializarComponentes(int fila, int columna) {
+    private void inicializarComponentes(int fila, int columna, int numeroAsiento) {
         getContentPane().setBackground(UIConstants.BG_PANEL);
         setLayout(new BorderLayout(0, 0));
 
@@ -46,8 +46,8 @@ public class DialogReserva extends JDialog {
         cuerpo.setBorder(new EmptyBorder(20, 24, 10, 24));
 
         JLabel mensaje = new JLabel(
-            "<html><center>¿Confirma la reserva de la butaca?<br>"
-            + "<b style='color:#fbbf24'>Fila " + (fila + 1) + " - Columna " + (columna + 1) + "</b></center></html>",
+            "<html><center>¿Confirmar la reserva para el asiento número?<br>"
+            + "<b style='color:#fbbf24'>Asiento " + numeroAsiento + "</b></center></html>",
             javax.swing.SwingConstants.CENTER);
         mensaje.setFont(UIConstants.FUENTE_CUERPO);
         mensaje.setForeground(UIConstants.TEXTO_PRIMARIO);

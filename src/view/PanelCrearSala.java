@@ -214,8 +214,9 @@ public class PanelCrearSala extends JPanel {
             gbc.insets = new Insets(2, 3, 2, rightInset);
             JLabel lblCol = new JLabel("C" + (j + 1), SwingConstants.CENTER);
             lblCol.setFont(new Font("Segoe UI", Font.BOLD, 9));
+            gbc.insets = new Insets(2, 3, 2, rightInset); // reuse inset
             lblCol.setForeground(UIConstants.TEXTO_TENUE);
-            lblCol.setPreferredSize(new Dimension(28, 14));
+            lblCol.setPreferredSize(new Dimension(32, 14));
             panelPreviewGrid.add(lblCol, gbc);
         }
 
@@ -226,7 +227,7 @@ public class PanelCrearSala extends JPanel {
             JLabel lblFila = new JLabel("F" + (i + 1), SwingConstants.CENTER);
             lblFila.setFont(new Font("Segoe UI", Font.BOLD, 9));
             lblFila.setForeground(UIConstants.TEXTO_TENUE);
-            lblFila.setPreferredSize(new Dimension(16, 28));
+            lblFila.setPreferredSize(new Dimension(16, 32));
             panelPreviewGrid.add(lblFila, gbc);
 
             for (int j = 0; j < columnas; j++) {
@@ -257,10 +258,10 @@ public class PanelCrearSala extends JPanel {
             }
         };
         btn.setOpaque(false);
-        btn.setPreferredSize(new Dimension(28, 28));
+        btn.setPreferredSize(new Dimension(32, 32));
         
         JLabel lbl = new JLabel(String.valueOf(numero), SwingConstants.CENTER);
-        lbl.setFont(new Font("Segoe UI", Font.BOLD, 9));
+        lbl.setFont(new Font("Segoe UI", Font.BOLD, 10));
         lbl.setForeground(Color.WHITE);
         btn.add(lbl, BorderLayout.CENTER);
         return btn;
