@@ -169,7 +169,7 @@ public class PanelControl extends JPanel {
         botones.setOpaque(false);
 
         JButton btnReservar = crearBoton("Reservar Butaca",
-                UIConstants.COLOR_RESERVADO, UIConstants.COLOR_RESERVADO_DARK);
+                UIConstants.COLOR_LIBRE, UIConstants.COLOR_LIBRE_DARK);
         btnReservar.addActionListener(e -> onReservarClick());
 
         JButton btnOcupar = crearBoton("Ocupar Butaca",
@@ -177,14 +177,14 @@ public class PanelControl extends JPanel {
         btnOcupar.addActionListener(e -> onOcuparClick());
 
         JButton btnCancelar = crearBoton("Cancelar Reserva",
-                new Color(59, 130, 246), new Color(37, 99, 235));
+                UIConstants.COLOR_RESERVADO, UIConstants.COLOR_RESERVADO_DARK);
         btnCancelar.addActionListener(e -> onCancelarClick());
 
         boolean puedeAdmin = rol == Rol.ADMIN;
         JButton btnLimpiar = crearBoton(
                 puedeAdmin ? "Limpiar Sala" : "Limpiar Sala  [Admin]",
-                puedeAdmin ? new Color(71, 85, 105) : new Color(42, 46, 52),
-                puedeAdmin ? new Color(51, 65, 85)  : new Color(30, 33, 38));
+                puedeAdmin ? new Color(160, 110, 210) : new Color(42, 46, 52),
+                puedeAdmin ? new Color(180, 130, 230) : new Color(30, 33, 38));
         btnLimpiar.addActionListener(e -> onLimpiarClick());
 
         botones.add(btnReservar);

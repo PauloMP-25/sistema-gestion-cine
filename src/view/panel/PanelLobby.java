@@ -1,16 +1,5 @@
 package view.panel;
 
-import view.*;
-import view.frame.*;
-import view.panel.*;
-import view.dialog.*;
-import view.component.*;
-import model.sala.*;
-import model.butaca.*;
-import model.reserva.*;
-import model.auth.*;
-
-
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -18,15 +7,15 @@ import java.awt.geom.RoundRectangle2D;
 import java.util.List;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import model.sala.ResumenSalas;
 import model.auth.Rol;
+import model.sala.ResumenSalas;
 import model.sala.SalaCine;
-import model.sala.SalaFactory;
 import service.GestorSalas;
 import service.SalaQuery;
 import service.SalaService;
 import service.interfaces.ISalaQuery;
 import service.interfaces.ISalaService;
+import view.*;
 
 /**
  * Panel lobby — vista principal del sistema. Lista todas las salas,
@@ -234,18 +223,22 @@ public class PanelLobby extends JPanel {
         JPanel der = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
         der.setOpaque(false);
 
-        // Mini barra de ocupación
-        JPanel barraWrap = new JPanel(new BorderLayout(0, 2));
-        barraWrap.setOpaque(false);
+        // Mini barra de ocupación — texto legible y color según porcentaje 0% libre, 40% reservado, 80% ocupado    
+        Color colorBarra = pctOcup > 80 ? UIConstants.COLOR_OCUPADO
+        : pctOcup > 40 ? UIConstants.COLOR_RESERVADO : UIConstants.COLOR_LIBRE;
+        JLabel lblPct = new JLabel(String.format("%.0f%% ocupado", pctOcup));
+        lblPct.setFont(UIConstants.FUENTE_CUERPO);
+        lblPct.setForeground(colorBarra);
         JProgressBar barra = new JProgressBar(0, 100);
         barra.setValue((int) pctOcup);
         barra.setStringPainted(false);
         barra.setBorderPainted(false);
-        barra.setForeground(pctOcup > 80 ? UIConstants.COLOR_OCUPADO
-                : pctOcup > 40 ? UIConstants.COLOR_RESERVADO : UIConstants.COLOR_LIBRE);
+        barra.setForeground(colorBarra);
         barra.setBackground(UIConstants.BG_FONDO);
-        barra.setPreferredSize(new Dimension(80, 6));
-        JLabel lblPct = ComponenteUI.pequena(String.format("%.0f%% ocupado", pctOcup));
+        barra.setPreferredSize(new Dimension(130, 6));
+        JPanel barraWrap = new JPanel(new BorderLayout(0, 4));
+        barraWrap.setOpaque(false);
+        barraWrap.setPreferredSize(new Dimension(130, 36));
         barraWrap.add(lblPct, BorderLayout.NORTH);
         barraWrap.add(barra, BorderLayout.CENTER);
 
