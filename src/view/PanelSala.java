@@ -4,6 +4,7 @@ import exception.AsientoNoReservadoException;
 import exception.AsientoOcupadoException;
 import exception.AsientoYaReservadoException;
 import exception.PosicionInvalidaException;
+import model.Rol;
 import service.interfaces.ISalaQuery;
 import service.interfaces.ISalaService;
 
@@ -24,8 +25,9 @@ import java.awt.Insets;
  */
 public class PanelSala extends JPanel {
 
-    private final ISalaService salaService;
-    private final ISalaQuery salaQuery;
+    private final ISalaService    salaService;
+    private final ISalaQuery      salaQuery;
+    private final Rol             rol;
     private final BotonButaca[][] botones;
     private final int filas;
     private final int columnas;
@@ -37,9 +39,10 @@ public class PanelSala extends JPanel {
      * @param salaService servicio de operaciones de escritura.
      * @param salaQuery   servicio de consultas de solo lectura.
      */
-    public PanelSala(ISalaService salaService, ISalaQuery salaQuery) {
+    public PanelSala(ISalaService salaService, ISalaQuery salaQuery, Rol rol) {
         this.salaService = salaService;
-        this.salaQuery = salaQuery;
+        this.salaQuery   = salaQuery;
+        this.rol         = rol;
         var matriz = salaQuery.obtenerMatriz();
         this.filas = matriz.length;
         this.columnas = matriz.length > 0 ? matriz[0].length : 0;
@@ -120,22 +123,51 @@ public class PanelSala extends JPanel {
         }
     }
 
-    // Determina la transición de estado al hacer clic: LIBRE -> RESERVADO -> OCUPADO -> LIBRE
+    // Determina la transición de estado al hacer clic
     private void ejecutarAccionSegunEstado(int fila, int columna) {
         BotonButaca boton = botones[fila][columna];
         switch (boton.getEstado()) {
             case LIBRE:
                 salaService.reservar(fila, columna);
+                sincronizarBoton(fila, columna);
+                notificarCambio();
                 break;
             case RESERVADO:
-                salaService.ocupar(fila, columna);
+                manejarButacaReservada(fila, columna);
                 break;
             default:
-                salaService.cancelar(fila, columna);
+                if (rol == Rol.CAJERO) {
+                    mostrarError("Sin permisos. Solo el administrador puede liberar butacas ocupadas.");
+                    return;
+                }
+                salaService.liberar(fila, columna);
+                sincronizarBoton(fila, columna);
+                notificarCambio();
                 break;
         }
-        sincronizarBoton(fila, columna);
-        notificarCambio();
+    }
+
+    // Muestra opciones Comprar / Cancelar Reserva para butacas en estado RESERVADO
+    private void manejarButacaReservada(int fila, int columna) {
+        java.awt.Frame padre = (java.awt.Frame) javax.swing.SwingUtilities.getWindowAncestor(this);
+        DialogOpcionesButaca dialogo = new DialogOpcionesButaca(padre, fila, columna);
+        dialogo.setVisible(true);
+
+        DialogOpcionesButaca.Opcion opcion = dialogo.getOpcionElegida();
+
+        if (opcion == DialogOpcionesButaca.Opcion.COMPRAR) {
+            DialogPagoQR pagoQR = new DialogPagoQR(padre, fila, columna);
+            pagoQR.setVisible(true);
+            if (pagoQR.isAceptado()) {
+                salaService.ocupar(fila, columna);
+                sincronizarBoton(fila, columna);
+                notificarCambio();
+            }
+        } else if (opcion == DialogOpcionesButaca.Opcion.CANCELAR) {
+            salaService.cancelar(fila, columna);
+            sincronizarBoton(fila, columna);
+            notificarCambio();
+        }
     }
 
     private void sincronizarBoton(int fila, int columna) {

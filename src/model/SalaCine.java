@@ -11,7 +11,7 @@ public class SalaCine {
     private static int siguienteId = 1;
 
     private final int id;
-    private final String nombre;
+    private String nombre;
     private final int filas;
     private final int cols;
     private final Butaca[][] butacas;
@@ -49,8 +49,11 @@ public class SalaCine {
     }
 
     /** @return Nombre descriptivo de la sala. */
-    public String getNombre() {
-        return nombre;
+    public String getNombre() { return nombre; }
+
+    /** Actualiza el nombre descriptivo de la sala. */
+    public void setNombre(String nombre) {
+        if (nombre != null && !nombre.isBlank()) this.nombre = nombre.trim();
     }
 
     /** @return Número de filas de la sala. */

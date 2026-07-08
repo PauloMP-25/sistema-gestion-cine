@@ -56,4 +56,17 @@ public interface ISalaService {
      * @return Lista de ResultadoReserva, uno por cada posición recibida, en el mismo orden.
      */
     List<ResultadoReserva> reservarMultiple(List<int[]> posiciones);
+
+    /**
+     * Fuerza la butaca indicada al estado LIBRE sin importar su estado actual.
+     * @param fila    Índice de fila (0 a filas-1).
+     * @param columna Índice de columna (0 a cols-1).
+     * @throws PosicionInvalidaException si la posición está fuera de rango.
+     */
+    void liberar(int fila, int columna) throws PosicionInvalidaException;
+
+    /**
+     * Restablece todas las butacas de la sala al estado LIBRE.
+     */
+    void limpiarSala();
 }
