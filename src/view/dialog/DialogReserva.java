@@ -57,8 +57,8 @@ public class DialogReserva extends JDialog {
         cuerpo.setBorder(new EmptyBorder(20, 24, 10, 24));
 
         JLabel mensaje = new JLabel(
-            "<html><center>¿Confirmar la reserva para el asiento número?<br>"
-            + "<b style='color:#fbbf24'>Asiento " + numeroAsiento + "</b></center></html>",
+            "<html><center>¿Confirmar la reserva para el<br>"
+            + "<b style='color:#fbbf24'>Asiento " + numeroAsiento + "</b>?</center></html>",
             javax.swing.SwingConstants.CENTER);
         mensaje.setFont(UIConstants.FUENTE_CUERPO);
         mensaje.setForeground(UIConstants.TEXTO_PRIMARIO);
@@ -73,12 +73,12 @@ public class DialogReserva extends JDialog {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 14));
         panel.setOpaque(false);
 
-        JButton btnConfirmar = new JButton("Confirmar");
-        estilizarBoton(btnConfirmar, UIConstants.BTN_EXITO);
+        JButton btnConfirmar = ComponenteUI.botonExito("Confirmar");
+        btnConfirmar.setPreferredSize(new java.awt.Dimension(120, 36));
         btnConfirmar.addActionListener(e -> onConfirmarClick());
 
-        JButton btnCancelar = new JButton("Cancelar");
-        estilizarBoton(btnCancelar, UIConstants.BTN_PELIGRO);
+        JButton btnCancelar = ComponenteUI.botonPeligro("Cancelar");
+        btnCancelar.setPreferredSize(new java.awt.Dimension(120, 36));
         btnCancelar.addActionListener(e -> onCancelarClick());
 
         panel.add(btnConfirmar);
@@ -102,15 +102,7 @@ public class DialogReserva extends JDialog {
         dispose();
     }
 
-    private void estilizarBoton(JButton btn, Color color) {
-        btn.setFont(UIConstants.FUENTE_BOTON);
-        btn.setBackground(color);
-        btn.setForeground(Color.WHITE);
-        btn.setFocusPainted(false);
-        btn.setBorderPainted(false);
-        btn.setPreferredSize(new java.awt.Dimension(120, 36));
-        btn.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
-    }
+
 
     /**
      * Indica si el usuario confirmó la reserva.

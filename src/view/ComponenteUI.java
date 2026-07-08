@@ -113,6 +113,7 @@ public final class ComponenteUI {
         btn.setForeground(Color.WHITE);
         btn.setBackground(colorBase);
         btn.setFocusPainted(false);
+        btn.setFocusable(false);
         btn.setBorderPainted(false);
         btn.setContentAreaFilled(false);
         btn.setOpaque(false);

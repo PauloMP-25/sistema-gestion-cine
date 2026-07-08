@@ -199,6 +199,7 @@ public class MainFrame extends JFrame {
         btn.setFont(UIConstants.FUENTE_PEQUENA);
         btn.setForeground(UIConstants.TEXTO_ACENTO);
         btn.setFocusPainted(false);
+        btn.setFocusable(false);
         btn.setBorderPainted(false);
         btn.setContentAreaFilled(false);
         btn.setOpaque(false);
@@ -230,6 +231,7 @@ public class MainFrame extends JFrame {
         btn.setFont(UIConstants.FUENTE_PEQUENA);
         btn.setForeground(new Color(239, 68, 68));
         btn.setFocusPainted(false);
+        btn.setFocusable(false);
         btn.setBorderPainted(false);
         btn.setContentAreaFilled(false);
         btn.setOpaque(false);

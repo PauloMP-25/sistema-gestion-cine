@@ -458,6 +458,7 @@ public class PanelControl extends JPanel {
         btn.setForeground(Color.WHITE);
         btn.setContentAreaFilled(false);
         btn.setFocusPainted(false);
+        btn.setFocusable(false);
         btn.setBorderPainted(false);
         btn.setOpaque(false);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));

@@ -150,15 +150,7 @@ public class DialogPagoQR extends JDialog {
         sep.setBackground(new Color(51, 65, 85));
 
         // Botón
-        JButton btnAceptar = new JButton("Confirmar Pago");
-        btnAceptar.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btnAceptar.setBackground(new Color(34, 197, 94));
-        btnAceptar.setForeground(Color.WHITE);
-        btnAceptar.setFocusPainted(false);
-        btnAceptar.setBorderPainted(false);
-        btnAceptar.setOpaque(true);
-        btnAceptar.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnAceptar.setPreferredSize(new Dimension(0, 40));
+        JButton btnAceptar = ComponenteUI.botonExito("Confirmar Pago");
         btnAceptar.addActionListener(e -> {
             aceptado = true;
             dispose();
