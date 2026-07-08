@@ -165,7 +165,7 @@ public class PanelControl extends JPanel {
         btnOcupar.addActionListener(e -> onOcuparClick());
 
         JButton btnCancelar = crearBoton("Cancelar Reserva",
-                UIConstants.BTN_SECUNDARIO, UIConstants.BTN_SECUNDARIO_HOVER);
+                new Color(59, 130, 246), new Color(37, 99, 235));
         btnCancelar.addActionListener(e -> onCancelarClick());
 
         boolean puedeAdmin = rol == Rol.ADMIN;
