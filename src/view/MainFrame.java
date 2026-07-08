@@ -304,6 +304,9 @@ public class MainFrame extends JFrame {
             panelControlActual.actualizarEstadisticas();
             actualizarBarraEstadoSala(salaQuery);
         });
+        panelSalaActual.setAlSeleccionarButaca(numeroAsiento -> {
+            panelControlActual.seleccionarAsiento(numeroAsiento);
+        });
         panelControlActual.setAlCambiarEstado(() -> {
             panelSalaActual.refrescarTodo();
             actualizarBarraEstadoSala(salaQuery);

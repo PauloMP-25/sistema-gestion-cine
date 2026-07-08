@@ -17,6 +17,7 @@ import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.util.function.Consumer;
 
 /**
  * Panel visual que representa la matriz de butacas de la sala.
@@ -32,6 +33,7 @@ public class PanelSala extends JPanel {
     private final int filas;
     private final int columnas;
     private Runnable alCambiarEstado;
+    private Consumer<Integer> alSeleccionarButaca;
 
     /**
      * Crea el panel de sala, recibiendo las dependencias del backend
@@ -72,8 +74,7 @@ public class PanelSala extends JPanel {
             gbc.gridy = 0;
             
             int rightInset = 5;
-            if (columnas == 4 && j == 1) rightInset = 35;
-            else if (columnas == 6 && j == 2) rightInset = 35;
+            if (columnas == 6 && j == 2) rightInset = 35;
             else if (columnas >= 7 && (j == 1 || j == columnas - 3)) rightInset = 35;
             
             gbc.insets = new Insets(4, 5, 4, rightInset);
@@ -104,8 +105,7 @@ public class PanelSala extends JPanel {
                 gbc.gridy = i + 1;
                 
                 int rightInset = 5;
-                if (columnas == 4 && j == 1) rightInset = 35;
-                else if (columnas == 6 && j == 2) rightInset = 35;
+                if (columnas == 6 && j == 2) rightInset = 35;
                 else if (columnas >= 7 && (j == 1 || j == columnas - 3)) rightInset = 35;
                 
                 gbc.insets = new Insets(4, 5, 4, rightInset);
@@ -123,12 +123,15 @@ public class PanelSala extends JPanel {
     private BotonButaca crearBotonButaca(int fila, int columna, int numeroAsiento) {
         BotonButaca boton = new BotonButaca(fila, columna, numeroAsiento);
         // PARADIGMA: Orientado a Eventos — ActionListener como Observer
-        boton.addActionListener(e -> onButacaClick(boton.getFila(), boton.getColumna()));
+        boton.addActionListener(e -> onButacaClick(boton.getFila(), boton.getColumna(), numeroAsiento));
         return boton;
     }
 
     // Separar la lógica de evento en un método privado con prefijo "on"
-    private void onButacaClick(int fila, int columna) {
+    private void onButacaClick(int fila, int columna, int numeroAsiento) {
+        if (alSeleccionarButaca != null) {
+            alSeleccionarButaca.accept(numeroAsiento);
+        }
         try {
             ejecutarAccionSegunEstado(fila, columna);
         } catch (PosicionInvalidaException ex) {
@@ -212,6 +215,10 @@ public class PanelSala extends JPanel {
      */
     public void setAlCambiarEstado(Runnable callback) {
         this.alCambiarEstado = callback;
+    }
+
+    public void setAlSeleccionarButaca(Consumer<Integer> callback) {
+        this.alSeleccionarButaca = callback;
     }
 
     private void notificarCambio() {

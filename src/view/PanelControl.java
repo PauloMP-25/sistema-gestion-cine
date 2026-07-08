@@ -23,7 +23,7 @@ public class PanelControl extends JPanel {
     private final Rol          rol;
     private final int filas, columnas;
 
-    private JSpinner    spinFila, spinColumna;
+    private JSpinner    spinNumeroAsiento;
     private JLabel      lblSeatDisplay;
     private JLabel      lblOcupacion;
     private PanelBarras panelBarras;
@@ -110,25 +110,21 @@ public class PanelControl extends JPanel {
         displayPanel.setOpaque(false);
         displayPanel.setPreferredSize(new Dimension(0, 46));
 
-        lblSeatDisplay = new JLabel("F 1  —  C 1");
+        lblSeatDisplay = new JLabel("Asiento 1");
         lblSeatDisplay.setFont(new Font("Segoe UI", Font.BOLD, 18));
         lblSeatDisplay.setForeground(new Color(139, 92, 246));
         displayPanel.add(lblSeatDisplay);
 
         // Spinner row
-        JPanel spRow = new JPanel(new GridLayout(1, 4, 8, 0));
+        JPanel spRow = new JPanel(new GridLayout(1, 2, 8, 0));
         spRow.setOpaque(false);
-        spRow.add(etiqueta("Fila:"));
-        spinFila = crearSpinner(filas);
-        spRow.add(spinFila);
-        spRow.add(etiqueta("Col:"));
-        spinColumna = crearSpinner(columnas);
-        spRow.add(spinColumna);
+        spRow.add(etiqueta("Nº Asiento:"));
+        spinNumeroAsiento = crearSpinner(filas * columnas);
+        spRow.add(spinNumeroAsiento);
 
         // Live update of display
         ChangeListener refresh = e -> actualizarDisplayButaca();
-        spinFila.addChangeListener(refresh);
-        spinColumna.addChangeListener(refresh);
+        spinNumeroAsiento.addChangeListener(refresh);
 
         centro.add(displayPanel, BorderLayout.NORTH);
         centro.add(spRow,        BorderLayout.CENTER);
@@ -137,9 +133,14 @@ public class PanelControl extends JPanel {
     }
 
     private void actualizarDisplayButaca() {
-        int f = (int) spinFila.getValue();
-        int c = (int) spinColumna.getValue();
-        lblSeatDisplay.setText("F " + f + "  —  C " + c);
+        int num = (int) spinNumeroAsiento.getValue();
+        lblSeatDisplay.setText("Asiento " + num);
+    }
+    
+    public void seleccionarAsiento(int numeroAsiento) {
+        if (numeroAsiento >= 1 && numeroAsiento <= filas * columnas) {
+            spinNumeroAsiento.setValue(numeroAsiento);
+        }
     }
 
     // ── BOTONES ──────────────────────────────────────────────────────────────
@@ -355,8 +356,15 @@ public class PanelControl extends JPanel {
 
     // ── UTILIDADES ───────────────────────────────────────────────────────────
 
-    private int filaSeleccionada()    { return (int) spinFila.getValue() - 1; }
-    private int columnaSeleccionada() { return (int) spinColumna.getValue() - 1; }
+    private int filaSeleccionada() { 
+        int num = (int) spinNumeroAsiento.getValue();
+        return (num - 1) / columnas;
+    }
+    
+    private int columnaSeleccionada() {
+        int num = (int) spinNumeroAsiento.getValue();
+        return (num - 1) % columnas;
+    }
 
     private void mostrarError(String m) {
         JOptionPane.showMessageDialog(this, m, "Error", JOptionPane.ERROR_MESSAGE);
