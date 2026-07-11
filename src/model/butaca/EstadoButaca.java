@@ -1,11 +1,5 @@
 package model.butaca;
 
-import model.sala.*;
-import model.butaca.*;
-import model.reserva.*;
-import model.auth.*;
-
-
 /**
  * Define los tres estados posibles de una butaca dentro de la sala.
  * Usa tipado fuerte para evitar valores inválidos en tiempo de compilación.

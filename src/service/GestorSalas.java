@@ -1,11 +1,5 @@
 package service;
 
-import model.sala.*;
-import model.butaca.*;
-import model.reserva.*;
-import model.auth.*;
-
-
 import model.butaca.EstadoButaca;
 import model.sala.ResumenSalas;
 import model.sala.SalaCine;

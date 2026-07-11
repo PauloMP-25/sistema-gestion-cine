@@ -46,7 +46,7 @@ public class MainFrame extends JFrame {
     private JPanel      panelSalaWrapper;   // envuelve PanelSala + PanelControl
     private PanelSala   panelSalaActual;
     private PanelControl panelControlActual;
-    private ISalaQuery   queryActual;
+
 
     /**
      * Constructor para uso con GestorSalas (RF6: ventana única, lobby primero).
@@ -305,7 +305,6 @@ public class MainFrame extends JFrame {
      * Crea los paneles de sala y control con las dependencias inyectadas.
      */
     private void mostrarSala(ISalaService salaService, ISalaQuery salaQuery, String nombreSala) {
-        this.queryActual = salaQuery;
 
         // Reconstruir el wrapper de sala con los nuevos servicios
         panelSalaWrapper.removeAll();
