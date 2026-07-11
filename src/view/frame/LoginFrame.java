@@ -25,6 +25,7 @@ public class LoginFrame extends JDialog {
     private static final Map<String, String> USUARIOS = Map.of(
             "admin",  "admin123",
             "cajero", "cine2024"
+            "cajero", "cine2026"
     );
 
     private JTextField     txtUsuario;
@@ -154,6 +155,7 @@ public class LoginFrame extends JDialog {
         gbc.gridy = 8; gbc.insets = new Insets(0, 60, 8, 60);
         JLabel lblHint = new JLabel(
                 "admin / admin123   •   cajero / cine2024",
+                "admin / admin123   •   cajero / cine2026",
                 SwingConstants.CENTER);
         lblHint.setFont(new Font("Segoe UI", Font.PLAIN, 11));
         lblHint.setForeground(new Color(71, 85, 105));

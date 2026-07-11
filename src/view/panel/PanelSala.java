@@ -1,34 +1,25 @@
 package view.panel;
 
-import view.*;
-import view.frame.*;
-import view.panel.*;
-import view.dialog.*;
-import view.component.*;
-import model.sala.*;
-import model.butaca.*;
-import model.reserva.*;
-import model.auth.*;
-
-
 import exception.AsientoNoReservadoException;
 import exception.AsientoOcupadoException;
 import exception.AsientoYaReservadoException;
 import exception.PosicionInvalidaException;
-import model.auth.Rol;
-import service.interfaces.ISalaQuery;
-import service.interfaces.ISalaService;
-
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.util.function.Consumer;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import model.auth.Rol;
+import service.interfaces.ISalaQuery;
+import service.interfaces.ISalaService;
+import view.*;
+import view.component.*;
+import view.dialog.*;
 
 /**
  * Panel visual que representa la matriz de butacas de la sala.
@@ -36,15 +27,16 @@ import java.util.function.Consumer;
  * del backend a través de las interfaces ISalaService e ISalaQuery.
  */
 public class PanelSala extends JPanel {
-
-    private final ISalaService    salaService;
-    private final ISalaQuery      salaQuery;
-    private final Rol             rol;
-    private final BotonButaca[][] botones;
-    private final int filas;
-    private final int columnas;
-    private Runnable alCambiarEstado;
-    private Consumer<Integer> alSeleccionarButaca;
+   // private la variable solo puede ser utilizada dentro de esta clase. Ninguna otra clase puede acceder directamente.
+   // Final Significa que la referencia nunca cambiará.
+    private final ISalaService    salaService; // trae la lógica de negocio para modificar el estado de las butacas
+    private final ISalaQuery      salaQuery; // extrae la información de las butacas para reflejarla en la UI
+    private final Rol             rol; // almacena el rol del usuario actual (CAJERO o ADMINISTRADOR) para determinar permisos de acción
+    private final BotonButaca[][] botones; //Se crea una matriz y cada elemento almacena un objeto BotonButaca que representa una butaca en la UI
+    private final int filas; // declara una variable entera llamada "filas" que almacena el número de filas de la matriz de butacas
+    private final int columnas; // declara una variable entera llamada "columnas" que almacena el número de columnas de la matriz de butacas
+    private Runnable alCambiarEstado; // almacena una referencia a un objeto Runnable que se ejecutará cuando cambie el estado de una butaca
+    private Consumer<Integer> alSeleccionarButaca; // almacena una referencia a un objeto Consumer que se ejecutará cuando se seleccione una butaca, pasando el número de asiento como argumento
 
     /**
      * Crea el panel de sala, recibiendo las dependencias del backend
@@ -52,9 +44,11 @@ public class PanelSala extends JPanel {
      * @param salaService servicio de operaciones de escritura.
      * @param salaQuery   servicio de consultas de solo lectura.
      */
+
+    //Realizamos un constructor que recibe como parámetros las dependencias necesarias para interactuar con el backend y el rol del usuario actual.
     public PanelSala(ISalaService salaService, ISalaQuery salaQuery, Rol rol) {
-        this.salaService = salaService;
-        this.salaQuery   = salaQuery;
+        this.salaService = salaService; // Se llama la clase por el this y la heredamos a la variabel salaService, que es la que se va a utilizar para modificar el estado de las butacas.
+        this.salaQuery   = salaQuery; // Sirve para consultar información de la sala, como el estado de las butacas y la matriz de asientos.
         this.rol         = rol;
         var matriz = salaQuery.obtenerMatriz();
         this.filas = matriz.length;
@@ -65,15 +59,17 @@ public class PanelSala extends JPanel {
     }
 
     // Solo crea y posiciona componentes. No agrega listeners aquí.
+    // Separa la lógica de construcción de la UI de la lógica de eventos.
     private void inicializarComponentes() {
         setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(4, 5, 4, 5);
+        gbc.insets = new Insets(4, 5, 4, 5); // márgenes entre componentes
 
         agregarEncabezados(gbc);
         crearGrillaButacas(gbc);
     }
 
+        // Agrega los encabezados de columna y fila a la grilla de butacas.
     private void agregarEncabezados(GridBagConstraints gbc) {
         gbc.gridx = 0;
         gbc.gridy = 0;
