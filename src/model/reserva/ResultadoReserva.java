@@ -1,11 +1,5 @@
 package model.reserva;
 
-import model.sala.*;
-import model.butaca.*;
-import model.reserva.*;
-import model.auth.*;
-
-
 /**
  * Resultado de un intento de reserva individual dentro de una operación
  * de reserva múltiple. Registra si la reserva fue exitosa y, si no,

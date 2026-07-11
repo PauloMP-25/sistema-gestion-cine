@@ -1,10 +1,6 @@
 package model.sala;
 
-import model.sala.*;
 import model.butaca.*;
-import model.reserva.*;
-import model.auth.*;
-
 
 /**
  * Representa una sala de cine con su propia matriz de butacas.

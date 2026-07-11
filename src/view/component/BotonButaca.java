@@ -1,15 +1,6 @@
 package view.component;
 
 import view.*;
-import view.frame.*;
-import view.panel.*;
-import view.dialog.*;
-import view.component.*;
-import model.sala.*;
-import model.butaca.*;
-import model.reserva.*;
-import model.auth.*;
-
 
 import model.butaca.EstadoButaca;
 

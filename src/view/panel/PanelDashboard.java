@@ -1,22 +1,10 @@
 package view.panel;
 
 import view.*;
-import view.frame.*;
-import view.panel.*;
-import view.dialog.*;
-import view.component.*;
-import model.sala.*;
-import model.butaca.*;
-import model.reserva.*;
-import model.auth.*;
-
-
 import model.sala.ResumenSalas;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.geom.RoundRectangle2D;
 
 /**
  * Panel de estadísticas globales del lobby (dashboard).
@@ -139,7 +127,7 @@ public class PanelDashboard extends JPanel {
      * @param resumen Resumen global calculado por GestorSalas.
      */
     public void actualizar(ResumenSalas resumen) {
-        long total = resumen.getTotalLibres() + resumen.getTotalReservadas() + resumen.getTotalOcupadas();
+        long total = resumen.getTotalButacas();
 
         lblTotalSalas.setText(String.valueOf(resumen.getTotalSalas()));
         lblLibres.setText(String.valueOf(resumen.getTotalLibres()));

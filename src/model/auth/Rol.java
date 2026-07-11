@@ -1,11 +1,5 @@
 package model.auth;
 
-import model.sala.*;
-import model.butaca.*;
-import model.reserva.*;
-import model.auth.*;
-
-
 public enum Rol {
     ADMIN("Administrador"),
     CAJERO("Cajero");

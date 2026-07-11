@@ -1,11 +1,5 @@
 package model.sala;
 
-import model.sala.*;
-import model.butaca.*;
-import model.reserva.*;
-import model.auth.*;
-
-
 /**
  * Contiene las estadísticas agregadas de todas las salas registradas en el sistema.
  * Pensado para alimentar el dashboard del panel lobby con los totales globales.

@@ -1,20 +1,10 @@
 package view.panel;
 
 import view.*;
-import view.frame.*;
-import view.panel.*;
-import view.dialog.*;
-import view.component.*;
-import model.sala.*;
-import model.butaca.*;
-import model.reserva.*;
-import model.auth.*;
-
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
-import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.Graphics;

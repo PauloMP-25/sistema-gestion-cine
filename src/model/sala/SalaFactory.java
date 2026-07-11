@@ -1,11 +1,5 @@
 package model.sala;
 
-import model.sala.*;
-import model.butaca.*;
-import model.reserva.*;
-import model.auth.*;
-
-
 /**
  * Fábrica responsable de crear instancias de SalaCine con validación previa.
  * Verifica que las dimensiones estén dentro del rango permitido y que el total

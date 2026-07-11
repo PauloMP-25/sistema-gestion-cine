@@ -1,11 +1,5 @@
 package model.butaca;
 
-import model.sala.*;
-import model.butaca.*;
-import model.reserva.*;
-import model.auth.*;
-
-
 /**
  * Representa un asiento individual de la sala de cine.
  * Su posición (fila, columna) es inmutable; su estado puede cambiar
