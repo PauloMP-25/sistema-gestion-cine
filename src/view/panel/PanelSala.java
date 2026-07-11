@@ -56,6 +56,7 @@ public class PanelSala extends JPanel {
         this.botones = new BotonButaca[filas][columnas];
         setOpaque(false);
         inicializarComponentes();
+        refrescarTodo();
     }
 
     // Solo crea y posiciona componentes. No agrega listeners aquí.

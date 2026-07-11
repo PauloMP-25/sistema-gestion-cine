@@ -163,7 +163,7 @@ public class PanelLobby extends JPanel {
         long reservadas = q.contarReservadas();
         long ocupadas   = q.contarOcupadas();
         int  total      = q.totalButacas();
-        double pctOcup  = total > 0 ? (double)(total - libres) / total * 100 : 0;
+        double pctOcup  = total > 0 ? (double)ocupadas / total * 100 : 0;
 
         // Tarjeta base con hover
         JPanel card = new JPanel(new BorderLayout(14, 0)) {

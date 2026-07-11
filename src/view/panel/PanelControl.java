@@ -242,8 +242,8 @@ public class PanelControl extends JPanel {
             dibujarBarra(g2, "Ocupadas",   ocupadas,   UIConstants.COLOR_OCUPADO,   maxW, startY + gap * 2, barH);
 
             // Total label
-            g2.setFont(new Font("Segoe UI", Font.PLAIN, 10));
-            g2.setColor(UIConstants.TEXTO_TENUE);
+            g2.setFont(new Font("Segoe UI", Font.BOLD, 11));
+            g2.setColor(Color.WHITE);
             g2.drawString("Total: " + total + " butacas", 0, startY + gap * 3 + 2);
             g2.dispose();
         }
@@ -253,8 +253,8 @@ public class PanelControl extends JPanel {
             int pct    = (int)(100.0 * valor / total);
             int filled = (int)((double) valor / total * maxW);
 
-            g2.setFont(new Font("Segoe UI", Font.PLAIN, 11));
-            g2.setColor(UIConstants.TEXTO_SECUNDARIO);
+            g2.setFont(new Font("Segoe UI", Font.BOLD, 12));
+            g2.setColor(Color.WHITE);
             g2.drawString(label, 0, y + barH);
 
             int barY = y + barH + 4;
@@ -270,8 +270,8 @@ public class PanelControl extends JPanel {
             }
 
             // Percentage label
-            g2.setFont(new Font("Segoe UI", Font.BOLD, 10));
-            g2.setColor(color);
+            g2.setFont(new Font("Segoe UI", Font.BOLD, 11));
+            g2.setColor(Color.WHITE);
             g2.drawString(valor + " (" + pct + "%)", maxW + 5, barY + barH);
         }
     }
@@ -331,6 +331,12 @@ public class PanelControl extends JPanel {
             return;
         }
         
+        view.dialog.DialogPagoQR pagoQR = new view.dialog.DialogPagoQR(ventanaPadre(), fila, col);
+        pagoQR.setVisible(true);
+        if (!pagoQR.isAceptado()) {
+            return;
+        }
+
         int confirm = JOptionPane.showConfirmDialog(ventanaPadre(), "¿Confirmar la ocupación para el asiento número " + num + "?", "Confirmar Ocupación", JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION) {
             try {
@@ -354,11 +360,11 @@ public class PanelControl extends JPanel {
 
         // Live occupancy label
         if (lblOcupacion != null && t > 0) {
-            int pctLibre = (int)(100.0 * l / t);
-            lblOcupacion.setText(pctLibre + "% libre");
-            Color color = pctLibre > 60 ? UIConstants.COLOR_LIBRE
-                        : pctLibre > 30 ? UIConstants.COLOR_RESERVADO
-                        : UIConstants.COLOR_OCUPADO;
+            int pctOcupado = (int)(100.0 * o / t);
+            lblOcupacion.setText(pctOcupado + "% ocupado");
+            Color color = pctOcupado > 60 ? UIConstants.COLOR_OCUPADO
+                        : pctOcupado > 30 ? UIConstants.COLOR_RESERVADO
+                        : UIConstants.COLOR_LIBRE;
             lblOcupacion.setForeground(color);
         }
     }
