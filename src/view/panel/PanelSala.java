@@ -170,13 +170,6 @@ public class PanelSala extends JPanel {
                 manejarButacaReservada(fila, columna);
                 break;
             default:
-                if (rol == Rol.CAJERO) {
-                    mostrarError("Sin permisos. Solo el administrador puede liberar butacas ocupadas.");
-                    return;
-                }
-                salaService.liberar(fila, columna);
-                sincronizarBoton(fila, columna);
-                notificarCambio();
                 break;
         }
     }

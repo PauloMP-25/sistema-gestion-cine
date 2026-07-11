@@ -325,6 +325,12 @@ public class PanelControl extends JPanel {
     private void onOcuparClick() {
         int fila = filaSeleccionada(), col = columnaSeleccionada();
         int num = (fila * columnas) + col + 1;
+        
+        if (salaQuery.obtenerButaca(fila, col).getEstado() != model.butaca.EstadoButaca.RESERVADO) {
+            mostrarError("El asiento debe estar reservado antes de ocuparlo.");
+            return;
+        }
+        
         int confirm = JOptionPane.showConfirmDialog(ventanaPadre(), "¿Confirmar la ocupación para el asiento número " + num + "?", "Confirmar Ocupación", JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION) {
             try {
