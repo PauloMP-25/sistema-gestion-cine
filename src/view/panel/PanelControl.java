@@ -236,22 +236,27 @@ public class PanelControl extends JPanel {
             Graphics2D g2 = (Graphics2D) g.create();
             g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
-            int barH = 7, gap = 26, startY = 4, maxW = getWidth() - 62;
-            dibujarBarra(g2, "Libres",     libres,     UIConstants.COLOR_LIBRE,     maxW, startY,           barH);
-            dibujarBarra(g2, "Reservadas", reservadas, UIConstants.COLOR_RESERVADO, maxW, startY + gap,     barH);
-            dibujarBarra(g2, "Ocupadas",   ocupadas,   UIConstants.COLOR_OCUPADO,   maxW, startY + gap * 2, barH);
+            int barH = 7, gap = 24, startY = 2, maxW = getWidth() - 65;
+            
+            int pctOcup = total > 0 ? (int) Math.round(100.0 * ocupadas / total) : 0;
+            int pctRes = total > 0 ? (int) Math.round(100.0 * reservadas / total) : 0;
+            int pctLib = total > 0 ? 100 - pctOcup - pctRes : 0;
+            if (pctLib < 0) pctLib = 0; // Prevenir negativos en casos raros
+
+            dibujarBarra(g2, "Libres",     libres,     UIConstants.COLOR_LIBRE,     maxW, startY,           barH, pctLib);
+            dibujarBarra(g2, "Reservadas", reservadas, UIConstants.COLOR_RESERVADO, maxW, startY + gap,     barH, pctRes);
+            dibujarBarra(g2, "Ocupadas",   ocupadas,   UIConstants.COLOR_OCUPADO,   maxW, startY + gap * 2, barH, pctOcup);
 
             // Total label
             g2.setFont(new Font("Segoe UI", Font.BOLD, 11));
             g2.setColor(Color.WHITE);
-            g2.drawString("Total: " + total + " butacas", 0, startY + gap * 3 + 2);
+            g2.drawString("Total: " + total + " butacas", 0, startY + gap * 3 + 4);
             g2.dispose();
         }
 
         private void dibujarBarra(Graphics2D g2, String label, long valor, Color color,
-                                   int maxW, int y, int barH) {
-            int pct    = (int)(100.0 * valor / total);
-            int filled = (int)((double) valor / total * maxW);
+                                   int maxW, int y, int barH, int pct) {
+            int filled = total > 0 ? (int)((double) valor / total * maxW) : 0;
 
             g2.setFont(new Font("Segoe UI", Font.BOLD, 12));
             g2.setColor(Color.WHITE);
